@@ -6,6 +6,16 @@ from src.optimize import *
 from src.density import *
 from src.MODEL import *
 from src.EMA import *
+if activate=='Tanh_like':
+    from src.activate import Tanh_like as actfun
+else:
+    from src.activate import Relu_like as actfun
+
+if oc_activate=='Tanh_like':
+    from src.activate import Tanh_like as oc_actfun
+else:
+    from src.activate import Relu_like as oc_actfun
+
 if start_table==0:
     from src.Property_energy import *
 elif start_table==1:
@@ -16,7 +26,6 @@ elif start_table==3:
     from src.Property_TDM import *
 elif start_table==4:
     from src.Property_POL import *
-from src.Normdensity import *
 from src.cpu_gpu import *
 from src.Loss import *
 PES_Lammps=None
@@ -50,21 +59,16 @@ else:
 # outputneuron=norbit for each orbital have a different coefficients
 ocmod_list=[]
 for ioc_loop in range(oc_loop):
-    ocmod=NNMod(maxnumtype,norbit,atomtype,oc_nblock,list(oc_nl),oc_activate,oc_dropout_p,table_norm=oc_table_norm)
+    ocmod=NNMod(maxnumtype,norbit,atomtype,oc_nblock,list(oc_nl),oc_dropout_p,oc_actfun,table_norm=oc_table_norm)
     ocmod_list.append(ocmod)
 #=======================density======================================================
-getdensity=GetDensity(rs,inta,cutoff,nipsin,ocmod_list).to(device)
-#===================norm the density====================================================
-if dist.get_rank()==0 and table_init==0:
-    normdensity(norbit,getdensity,data_train,device)
+getdensity=GetDensity(rs,inta,cutoff,neigh_atoms,nipsin,ocmod_list)
 #==============================nn module=================================
-nnmod=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),activate,dropout_p,initpot=initpot,table_norm=table_norm)
+nnmod=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,initpot=initpot,table_norm=table_norm)
 nnmodlist=[nnmod]
 if start_table == 4:
-    nnmod1=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),activate,\
-    dropout_p,table_norm=table_norm)
-    nnmod2=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),activate,\
-    dropout_p,table_norm=table_norm)
+    nnmod1=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
+    nnmod2=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
     nnmodlist.append(nnmod1)
     nnmodlist.append(nnmod2)
 #=========================create the module=========================================
@@ -101,6 +105,9 @@ if table_init==1:
     lr=optim.param_groups[0]["lr"]
     f_ceff=init_f+(final_f-init_f)*(lr-start_lr)/(end_lr-start_lr+1e-8)
     prop_ceff[1]=f_ceff
+
+for name, m in Prop_class.named_parameters():
+    print(name)
 
 ema = EMA(Prop_class, 0.999)
 #==========================================================

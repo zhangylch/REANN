@@ -7,7 +7,7 @@ import opt_einsum as oe
 
 
 class GetDensity(torch.nn.Module):
-    def __init__(self,rs,inta,cutoff,nipsin,ocmod_list):
+    def __init__(self,rs,inta,cutoff,neigh_atoms,nipsin,ocmod_list):
         super(GetDensity,self).__init__()
         '''
         rs: tensor[ntype,nwave] float
@@ -32,8 +32,7 @@ class GetDensity(torch.nn.Module):
         # index_para: Type: longTensor,index_para was used to expand the dim of params 
         # in nn with para(l) 
         # will have the form index_para[0,|1,1,1|,2,2,2,2,2,2,2,2,2|...npara[l]..\...]
-        self.params=nn.parameter.Parameter(torch.randn(self.ENIM[0],self.ENIM[1]*self.ENIM[2]))
-        self.hyper=nn.parameter.Parameter(torch.nn.functional.normalize(torch.randn(len(ocmod_list)+1,self.ENIM[2],self.ENIM[1],self.ENIM[1]),dim=2))
+        self.params=nn.parameter.Parameter(torch.ones(self.ENIM[0],self.ENIM[1]*self.ENIM[2])/float(neigh_atoms))
         ocmod=OrderedDict()
         for i, m in enumerate(ocmod_list):
             f_oc="memssage_"+str(i)
@@ -84,7 +83,7 @@ class GetDensity(torch.nn.Module):
         # species: indice for element of each atom
         """
         tmp_index=torch.arange(numatoms.shape[0],device=cart.device)*cart.shape[1]
-        self_mol_index=tmp_index.view(-1,1).expand(-1,atom_index.shape[2]).reshape(-1)
+        self_mol_index=tmp_index.view(-1,1).expand(-1,atom_index.shape[2]).reshape(1,-1)
         cart_=cart.flatten(0,1)
         totnatom=cart_.shape[0]
         padding_mask=torch.nonzero((shifts.view(-1,3)>-1e10).all(1)).view(-1)
@@ -104,14 +103,13 @@ class GetDensity(torch.nn.Module):
         orb_coeff.masked_scatter_(mask.view(-1,1),self.params.index_select(0,species[torch.nonzero(mask).view(-1)]))
         density=self.obtain_orb_coeff(0,totnatom,orbital,atom_index12,orb_coeff).view(totnatom,-1)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
-            orb_coeff= m(density,species)+orb_coeff
-            density=self.obtain_orb_coeff(ioc_loop+1,totnatom,orbital,atom_index12,orb_coeff)
+            orb_coeff += m(density,species)
+            density = self.obtain_orb_coeff(ioc_loop+1,totnatom,orbital,atom_index12,orb_coeff)
         return density
  
     def obtain_orb_coeff(self,iteration:int,totnatom:int,orbital,atom_index12,orb_coeff):
-        expandpara=self.hyper[iteration].index_select(0,self.index_para)
-        expandpara1=orb_coeff.index_select(0,atom_index12[1]).view(-1,self.ENIM[2],self.ENIM[1]).index_select(1,self.index_para)
-        worbital=oe.contract("ijk,jkm,ijm ->ijm", orbital,expandpara,expandpara1,backend="torch")
+        expandpara=orb_coeff.index_select(0,atom_index12[1]).view(-1,self.ENIM[2],self.ENIM[1]).index_select(1,self.index_para)
+        worbital=oe.contract("ijk,ijk ->ijk", orbital,expandpara,backend="torch")
         sum_worbital=torch.zeros((totnatom,orbital.shape[1],self.ENIM[1]),dtype=orbital.dtype,device=orbital.device)
         sum_worbital=torch.index_add(sum_worbital,0,atom_index12[0],worbital)
         part_den=torch.square(sum_worbital)

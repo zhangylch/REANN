@@ -3,12 +3,11 @@ from collections import OrderedDict
 from torch import nn
 from torch.nn import Linear,Dropout,BatchNorm1d,Sequential,LayerNorm
 from torch.nn import Softplus,GELU,Tanh,SiLU
-from torch.nn.init import xavier_normal_,zeros_,constant_
+from torch.nn.init import xavier_uniform_,zeros_,constant_
 import numpy as np
-#import pysnooper for dbug
 
 class ResBlock(nn.Module):
-    def __init__(self, nl, actfun, dropout_p, table_norm=True):
+    def __init__(self, nl, dropout_p, actfun, table_norm=True):
         super(ResBlock, self).__init__()
         # activation function used for the nn module
         nhid=len(nl)-1
@@ -16,42 +15,30 @@ class ResBlock(nn.Module):
         modules=[]
         for i in range(1,nhid):
             if table_norm: modules.append(LayerNorm(nl[i]))
-            modules.append(actfun)
+            modules.append(actfun(nl[i-1],nl[i]))
             if sumdrop>=0.0001: modules.append(Dropout(p=dropout_p[i-1]))
             #bias = not(i==nhid-1)
             linear=Linear(nl[i],nl[i+1])
             if i==nhid-1: 
                 zeros_(linear.weight)
             else:
-                xavier_normal_(linear.weight)
-            zeros_(linear.bias)
+                xavier_uniform_(linear.weight)
             modules.append(linear)
         self.resblock=Sequential(*modules)
 
     def forward(self, x):
-        out = self.resblock(x)
-        return out + x
+        return self.resblock(x) + x
 
 #==================for get the atomic energy=======================================
 class NNMod(torch.nn.Module):
-   def __init__(self,maxnumtype,outputneuron,atomtype,nblock,nl,activate,dropout_p,initpot=0.0,table_norm=True):
+   def __init__(self,maxnumtype,outputneuron,atomtype,nblock,nl,dropout_p,actfun,initpot=0.0,table_norm=True):
       """
       maxnumtype: is the maximal element
       nl: is the neural network structure;
-      actfun: activation function 
       outputneuron: the number of output neuron of neural network
       atomtype: elements in all systems
       """
       super(NNMod,self).__init__()
-      # activation function used for the nn module
-      if activate=='Softplus':
-          actfun=Softplus()
-      elif activate=='Gelu':
-          actfun=GELU()
-      elif activate=='tanh':
-          actfun=Tanh()
-      elif activate=='SiLU':
-          actfun=SiLU()
       self.register_buffer("initpot",torch.Tensor([initpot]))
       # create the structure of the nn     
       self.outputneuron=outputneuron
@@ -65,16 +52,14 @@ class NNMod(torch.nn.Module):
                   modules=[]
                   for i in range(nhid):
                       linear=Linear(nl[i],nl[i+1])
-                      xavier_normal_(linear.weight)
-                      zeros_(linear.bias)
-                      #xavier initialization (normal distribution)
+                      xavier_uniform_(linear.weight)
                       modules.append(linear)
                       if table_norm: modules.append(LayerNorm(nl[i+1]))
-                      modules.append(actfun)
+                      modules.append(actfun(nl[i],nl[i+1]))
                       if sumdrop>=0.0001: modules.append(Dropout(p=dropout_p[i]))
                   linear=Linear(nl[nhid],nl[nhid+1])
                   zeros_(linear.weight)
-                  zeros_(linear.bias)
+                  if abs(initpot)>1e-6: zeros_(linear.bias)
                   modules.append(linear)
                   elemental_nets[ele] = Sequential(*modules)
           else:
@@ -83,15 +68,14 @@ class NNMod(torch.nn.Module):
               for ele in atomtype:
                   modules=[]
                   linear=Linear(nl[0],nl[1])
-                  xavier_normal_(linear.weight)
-                  # xavier initialization (normal distribution)
+                  xavier_uniform_(linear.weight)
                   modules.append(linear)
                   for iblock in range(nblock):
-                      modules.append( * [ResBlock(nl,actfun,dropout_p,table_norm=table_norm)])
-                  modules.append(actfun)
+                      modules.append( * [ResBlock(nl,dropout_p,actfun,table_norm=table_norm)])
+                  modules.append(actfun(nl[nhid-1],nl[nhid]))
                   linear=Linear(nl[nhid],self.outputneuron)
                   zeros_(linear.weight)
-                  zeros_(linear.bias)
+                  if abs(initpot)>1e-6: zeros_(linear.bias)
                   modules.append(linear)
                   elemental_nets[ele] = Sequential(*modules)
       self.elemental_nets=nn.ModuleDict(elemental_nets)

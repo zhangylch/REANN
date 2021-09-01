@@ -26,7 +26,8 @@ Prop_class,loss_fn,optim,scheduler,ema,PES_Normal,device,PES_Lammps=None):
           # obtain the gradients
           loss.backward()
           optim.step()   
-          # doing the exponential moving average update the EMA parameters
+
+          #doing the exponential moving average update the EMA parameters
           ema.update()
     
        #  print the error of vailadation and test each print_epoch

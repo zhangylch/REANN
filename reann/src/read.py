@@ -36,7 +36,7 @@ init_f = 5                 # initial force weight in loss function
 final_f = 5e-1                # final force weight in loss function
 nl=[256,128,64,32]                  # NN structure
 dropout_p=[0.0,0.0,0.0]           # dropout probability for each hidden layer
-activate = 'Softplus'             # activate function: "Gelu", "tanh", "Softplus" are supported
+activate = 'Relu_like'          # default "Tanh_like", optional "Relu_like"
 queue_size=10
 table_norm= False
 find_unused = False
@@ -46,7 +46,7 @@ oc_nl = [64,32]          # neural network architecture
 oc_nblock = 1
 oc_dropout_p=[0.0,0.0,0.0,0.0]
 #=====================act fun===========================
-oc_activate = 'Softplus'          # default "Softplus", optional "Gelu", "tanh"
+oc_activate = 'Tanh_like'          # default "Tanh_like", optional "Relu_like"
 #========================queue_size sequence for laod data into gpu
 oc_table_norm=False
 DDP_backend="nccl"
