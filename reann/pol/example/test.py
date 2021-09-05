@@ -56,4 +56,4 @@ with open("/home/home/zyl/pytorch/2021_3_6/data/polar/H2O-dimer/train/configurat
         rmse[0]+=torch.sum(torch.square(dipole-abene))
         npoint+=1
 rmse=rmse.detach().cpu().numpy()
-print(np.sqrt(rmse[0]/npoint))
+print(np.sqrt(rmse[0]/npoint/9))

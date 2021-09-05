@@ -9,7 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 atomtype=["O","H"]
 mass=torch.tensor([15.999,1.008,1.008],dtype=torch.double)
 #load the serilizable model
-pes=torch.jit.load("EANN_PES_DOUBLE.pt")
+pes=torch.jit.load("EANN_DM_DOUBLE.pt")
 # FLOAT: torch.float32; DOUBLE:torch.double for using float/double in inference
 pes.to(device).to(torch.double)
 # set the eval mode
@@ -47,7 +47,9 @@ with open("/home/home/zyl/pytorch/2021_3_6/data/dipole/H2O-momer/train/configura
         species=torch.from_numpy(np.array(species)).to(device)  # from numpy array to torch tensor
         cart=torch.from_numpy(np.array(cart)).to(device).to(torch.double)  # also float32/double
         tcell=torch.from_numpy(cell).to(device).to(torch.double)  # also float32/double
-        dipole,=pes(period_table,cart,tcell,species,mass)
+        dipole=pes(period_table,cart,tcell,species,mass)
+        print("hello")
+        print(dipole,abene)
         print((dipole-abene).detach().cpu().numpy())
         rmse[0]+=torch.sum(torch.square(dipole-abene))
         npoint+=1

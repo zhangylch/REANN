@@ -8,7 +8,7 @@ class PES(torch.nn.Module):
     def __init__(self,nlinked=1):
         super(PES, self).__init__()
         #========================set the global variable for using the exec=================
-        global nblock, nl, dropout_p, table_norm, activate
+        global nblock, nl, dropout_p, table_norm, activate,norbit
         global oc_loop,oc_nblock, oc_nl, oc_dropout_p, oc_table_norm, oc_activate
         global nwave, cutoff, nipsin, atomtype
         # global parameters for input_nn
@@ -21,10 +21,10 @@ class PES(torch.nn.Module):
         oc_nl = [64,32]          # neural network architecture   
         oc_nblock = 1
         oc_dropout_p=[0.0,0.0,0.0,0.0]
-        oc_activate="Tanh_like"
+        oc_activate="Relu_like"
         #========================queue_size sequence for laod data into gpu
         oc_table_norm=False
-        
+        norbit=None
         #======================read input_nn==================================
         with open('para/input_nn','r') as f1:
            while True:
@@ -40,7 +40,7 @@ class PES(torch.nn.Module):
         # define the outputneuron of NN
         outputneuron=1
         #======================read input_nn=============================================
-        nipsin=[0,1,2]
+        nipsin=2
         cutoff=4.0
         nwave=12
         with open('para/input_density','r') as f1:
@@ -77,9 +77,9 @@ class PES(torch.nn.Module):
            inta=torch.ones((maxnumtype,nwave))
            rs=torch.stack([torch.linspace(0,cutoff,nwave) for itype in range(maxnumtype)],dim=0)
         #======================for orbital================================
-        ipsin=len(nipsin)
-        nipsin=torch.Tensor(nipsin)
-        norbit=nwave*ipsin
+        nipsin+=1
+        if not norbit:
+            norbit=int(nwave*(nwave+1)/2*nipsin)
         #========================nn structure========================
         nl.insert(0,int(norbit))
         oc_nl.insert(0,int(norbit))
@@ -87,9 +87,9 @@ class PES(torch.nn.Module):
         self.cutoff=cutoff
         ocmod_list=[]
         for ioc_loop in range(oc_loop):
-            ocmod_list.append(NNMod(maxnumtype,norbit,atomtype,oc_nblock,list(oc_nl),\
+            ocmod_list.append(NNMod(maxnumtype,nwave,atomtype,oc_nblock,list(oc_nl),\
             oc_dropout_p,oc_actfun,table_norm=oc_table_norm))
-        self.density=GetDensity(rs,inta,cutoff,nipsin,ocmod_list)
+        self.density=GetDensity(rs,inta,cutoff,nipsin,norbit,ocmod_list)
         self.nnmod=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
         #================================================nn module==================================================
      

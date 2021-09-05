@@ -46,15 +46,14 @@ oc_nl = [64,32]          # neural network architecture
 oc_nblock = 1
 oc_dropout_p=[0.0,0.0,0.0,0.0]
 #=====================act fun===========================
-oc_activate = 'Tanh_like'          # default "Tanh_like", optional "Relu_like"
+oc_activate = 'Relu_like'          # default "Tanh_like", optional "Relu_like"
 #========================queue_size sequence for laod data into gpu
 oc_table_norm=False
 DDP_backend="nccl"
 # floder to save the data
 floder="./"
 dtype='float64'   #float32/float64
-
-
+norbit=None
 #======================read input_nn=================================================================
 with open('para/input_nn','r') as f1:
    while True:
@@ -80,7 +79,7 @@ torch.set_default_dtype(torch_dtype)
 
 #======================read input_density=============================================
 # defalut values in input_density
-nipsin=[0,1,2]
+nipsin=2
 cutoff=4.0
 nwave=12
 with open('para/input_density','r') as f1:
@@ -94,8 +93,9 @@ with open('para/input_density','r') as f1:
           else:
              m=string.split('#')
              exec(m[0])
+# increase the nipsin
+nipsin+=1
 
-nipsin=torch.from_numpy(np.array(nipsin))
 #================ end of read parameter from input file================================
 
 # define the outputneuron of NN
@@ -116,10 +116,10 @@ else:
    inta=torch.ones((maxnumtype,nwave))
    rs=torch.stack([torch.linspace(0,cutoff,nwave) for itype in range(maxnumtype)],dim=0)
 
-ipsin=len(nipsin)
-norbit=nwave*ipsin
-nl.insert(0,int(norbit))
-oc_nl.insert(0,int(norbit))
+if not norbit:
+    norbit=int((nwave+1)*nwave/2*(nipsin))
+nl.insert(0,norbit)
+oc_nl.insert(0,norbit)
 
 #=============================================================================
 floder_train=floder+"train/"
