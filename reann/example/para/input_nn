@@ -26,20 +26,6 @@
 # wave epoch and wave optimize parameters
   ratio = 0.9                    # ratio for training
 # =====================================================================
-<<<<<<< HEAD
-  batchsize = 16                # batch_size
-  e_ceff=0.1
-  init_f=0.5                     # init_f
-  final_f=0.1                      # final_f
-#=====================act fun===========================
-  activate = 'SiLU'          # default "Softplus", optional "Gelu", "tanh"
-#========================queue_size sequence for laod data into gpu
-  queue_size=100
-  print_epoch=2
-  table_norm=True
-  DDP_backend='nccl'
-  dtype="float64"
-=======
   batchsize = 64                # batch_size
   e_ceff=0.1
   init_f=0.5                     # init_f
@@ -51,17 +37,11 @@
   DDP_backend='nccl'
   activate = 'Relu_like'
   dtype="float32"
->>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
 #===========param for orbital coefficient ===============================================
      oc_nl = [16,16]          # neural network architecture   
      oc_nblock = 1
      oc_dropout_p=[0,0,0,0]
-<<<<<<< HEAD
-   #=====================act fun===========================
-     oc_activate = 'SiLU'          # default "Softplus", optional "Gelu", "tanh"
-=======
      oc_activate = 'Relu_like'
->>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
    #========================queue_size sequence for laod data into gpu
      oc_table_norm=True
      oc_loop=3

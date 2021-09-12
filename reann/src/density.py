@@ -88,10 +88,7 @@ class GetDensity(torch.nn.Module):
         shift_values=shifts.view(-1,3).index_select(0,padding_mask)
         dist_vec = selected_cart[0] - selected_cart[1] + shift_values
         distances = torch.linalg.norm(dist_vec,dim=-1)
-<<<<<<< HEAD
         dist_vec=dist_vec/distances.view(-1,1)
-=======
->>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
         species_ = species.index_select(0,atom_index12[1])
         orbital = oe.contract("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),\
         self.gaussian(distances,species_),backend="torch")
