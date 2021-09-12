@@ -84,7 +84,10 @@ class GetDensity(torch.nn.Module):
         selected_cart = cart.index_select(0, atom_index.view(-1)).view(2, -1, 3)
         dist_vec = selected_cart[0] - selected_cart[1]
         distances = torch.linalg.norm(dist_vec,dim=-1)
+<<<<<<< HEAD
         dist_vec=dist_vec/distances.view(-1,1)
+=======
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
         orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),\
         self.gaussian(distances,neigh_species))
         orb_coeff=self.params.index_select(0,neigh_species)

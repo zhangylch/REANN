@@ -12,7 +12,11 @@ class DataLoader():
         self.shifts=shifts
         self.batchsize=batchsize
         self.dim=self.image.shape[0]
+<<<<<<< HEAD
         self.end=self.dim        # neglect the last batch that less than the batchsize
+=======
+        self.end=self.dim-batchsize+1        # neglect the last batch that less than the batchsize
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
         self.shuffle=shuffle               # to control shuffle the data
         if self.shuffle:
             self.shuffle_list=torch.randperm(self.dim)
@@ -26,7 +30,11 @@ class DataLoader():
 
     def __next__(self):
         if self.ipoint < self.end:
+<<<<<<< HEAD
             index_batch=self.shuffle_list[self.ipoint:min(self.end,self.ipoint+self.batchsize)]
+=======
+            index_batch=self.shuffle_list[self.ipoint:self.ipoint+self.batchsize]
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
             coordinates=self.image.index_select(0,index_batch)
             abprop=(label.index_select(0,index_batch) for label in self.label)
             species=self.index_ele.index_select(0,index_batch)

@@ -213,8 +213,13 @@ if start_table==1:
     test_nele[1]=ntest_vec
    
 if start_table==0: 
+<<<<<<< HEAD
     pot_train=torch.from_numpy(np.array(pot[range_train[0]:range_train[1]],dtype=np_dtype))
     pot_test=torch.from_numpy(np.array(pot[range_test[0]:range_test[1]],dtype=np_dtype))
+=======
+    pot_train=torch.from_numpy(pot[range_train[0]:range_train[1]])
+    pot_test=torch.from_numpy(pot[range_test[0]:range_test[1]])
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
     abpropset_train=(pot_train,)
     abpropset_test=(pot_test,)
     test_nele=torch.empty(nprop)

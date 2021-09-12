@@ -44,7 +44,11 @@ elif start_table==4:
 
 #==============================train data loader===================================
 dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
+<<<<<<< HEAD
 species_train,atom_index_train,shifts_train,batchsize,shuffle=True)
+=======
+species_train,atom_index_train,shifts_train,batchsize,shuffle=False)
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
 #=================================test data loader=================================
 dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
 species_test,atom_index_test,shifts_test,batchsize,shuffle=False)

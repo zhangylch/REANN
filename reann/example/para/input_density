@@ -1,6 +1,14 @@
 #==============param for atomic energy=======================
+<<<<<<< HEAD
   neigh_atoms=150
   cutoff=5.5e0
   nipsin=[0, 1, 2]
   atomtype=['O', 'H']
   nwave=11
+=======
+  neigh_atoms=120
+  cutoff=5.5e0
+  nipsin=2
+  atomtype=['O', 'H']
+  nwave=5
+>>>>>>> 1f3285ecc24ecb87634670a5d7808bb210dcefca
