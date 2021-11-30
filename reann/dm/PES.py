@@ -15,13 +15,13 @@ class PES(torch.nn.Module):
         # global parameters for input_nn
         nblock = 1                   # nblock>=2  resduial NN block will be employed nblock=1: simple feedforward nn
         nl=[128,128]                # NN structure
-        dropout_p=[0.0,0.0,0.0]       # dropout probability for each hidden layer
+        dropout_p=[0.0,0.0]       # dropout probability for each hidden layer
         activate = 'Relu_like'
         table_norm= True
         oc_loop = 1
         oc_nl = [128,128]          # neural network architecture   
         oc_nblock = 1
-        oc_dropout_p=[0.0,0.0,0.0,0.0]
+        oc_dropout_p=[0.0,0.0]
         oc_activate = 'Relu_like'
         #========================queue_size sequence for laod data into gpu
         oc_table_norm = True

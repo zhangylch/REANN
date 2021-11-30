@@ -5,7 +5,7 @@ def jit_pes():
     init_pes=PES.PES()
     state_dict = torch.load("REANN.pth",map_location='cpu')
     new_state_dict = OrderedDict()
-    for k, v in state_dict['eannparam'].items():
+    for k, v in state_dict['reannparam'].items():
         if k[0:7]=="module.":
             name = k[7:] # remove `module.`
             new_state_dict[name] = v

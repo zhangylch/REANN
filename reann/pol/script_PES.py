@@ -3,9 +3,9 @@ from collections import OrderedDict
 import torch
 def jit_pes():
     init_pes=PES.PES()
-    state_dict = torch.load("EANN.pth",map_location='cpu')
+    state_dict = torch.load("REANN.pth",map_location='cpu')
     new_state_dict = OrderedDict()
-    for k, v in state_dict['eannparam'].items():
+    for k, v in state_dict['reannparam'].items():
         if k[0:7]=="module.":
             name = k[7:] # remove `module.`
             new_state_dict[name] = v
@@ -17,6 +17,6 @@ def jit_pes():
     for params in scripted_pes.parameters():
         params.requires_grad=False
     scripted_pes.to(torch.double)
-    scripted_pes.save("EANN_POL_DOUBLE.pt")
+    scripted_pes.save("REANN_POL_DOUBLE.pt")
     scripted_pes.to(torch.float32)
-    scripted_pes.save("EANN_POL_FLOAT.pt")
+    scripted_pes.save("REANN_POL_FLOAT.pt")

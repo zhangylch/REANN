@@ -67,8 +67,8 @@ Prop_class,loss_fn,optim,scheduler,ema,PES_Normal,device,PES_Lammps=None):
           #  save the best model
           if lossprop[0]<best_loss[0]:
              if rank == 0:
-                 state = {'eannparam': Prop_class.state_dict(), 'optimizer': optim.state_dict()}
-                 torch.save(state, "./EANN.pth")
+                 state = {'reannparam': Prop_class.state_dict(), 'optimizer': optim.state_dict()}
+                 torch.save(state, "./REANN.pth")
                  best_loss[0]=lossprop[0]
                  PES_Normal.jit_pes()
                  if PES_Lammps:

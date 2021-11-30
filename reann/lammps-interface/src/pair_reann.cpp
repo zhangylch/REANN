@@ -5,7 +5,7 @@
 // // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #include <mpi.h>
 #include <stdlib.h>
-#include <pair_eann.h>
+#include <pair_reann.h>
 #include <string>
 #include <numeric>
 #include <vector>
@@ -25,23 +25,20 @@
 using namespace LAMMPS_NS;
 using namespace std;
 
-PairEANN::PairEANN(LAMMPS *lmp) : Pair(lmp) 
+PairREANN::PairREANN(LAMMPS *lmp) : Pair(lmp) 
 {
 }
 
-PairEANN::~PairEANN() 
+PairREANN::~PairREANN() 
 {
     if (allocated) 
     {
          memory->destroy(setflag);
          memory->destroy(cutsq);
     }
-    // delete the map from the global index to local index
-    atom->map_delete();
-    atom->map_style = Atom::MAP_NONE;
 }
 
-void PairEANN::allocate()
+void PairREANN::allocate()
 {
     allocated = 1;
     int n = atom->ntypes;
@@ -58,7 +55,7 @@ void PairEANN::allocate()
 
 
 
-void PairEANN::init_style()
+void PairREANN::init_style()
 {
     int irequest = neighbor->request(this,instance_me);
     neighbor->requests[irequest]->pair = 1;
@@ -71,13 +68,14 @@ void PairEANN::init_style()
         torch::jit::setGraphExecutorOptimize(true);
         // load the model 
         // Deserialize the ScriptModule from a file using torch::jit::load().
-        if (datatype=="double") module = torch::jit::load("EANN_LAMMPS_DOUBLE.pt");
+        if (datatype=="double") module = torch::jit::load("REANN_LAMMPS_DOUBLE.pt");
         else 
         {
-            module = torch::jit::load("EANN_LAMMPS_FLOAT.pt");
+            module = torch::jit::load("REANN_LAMMPS_FLOAT.pt");
             tensor_type = torch::kFloat32;
         }
         // freeze the module
+        module=torch::jit::optimize_for_inference(module);
         int id;
         if (torch::cuda::is_available()) 
         {
@@ -99,24 +97,16 @@ void PairEANN::init_style()
             device=torch::Device(device_type);
         }*/
         module.eval();
-        module=torch::jit::optimize_for_inference(module);
     }
     catch (const c10::Error& e) 
     {
         std::cerr << "error loading the model\n";
     }
     std::cout << "ok\n";
-
-    // create the map from global to local
-    if (atom->map_style == Atom::MAP_NONE) {
-      atom->nghost=0;
-      atom->map_init(1);
-      atom->map_set();
-    }
   
 }
 
-void PairEANN::coeff(int narg, char **arg)
+void PairREANN::coeff(int narg, char **arg)
 {
     if (!allocated) 
     {
@@ -145,12 +135,12 @@ void PairEANN::coeff(int narg, char **arg)
 }
 
 
-void PairEANN::settings(int narg, char **arg)
+void PairREANN::settings(int narg, char **arg)
 {
 }
 
 
-double PairEANN::init_one(int i, int j)
+double PairREANN::init_one(int i, int j)
 {
   return cutoff;
 }
@@ -171,14 +161,13 @@ double PairEANN::init_one(int i, int j)
 //#pragma GCC push_options
 //#pragma GCC optimize (0)
 
-void PairEANN::compute(int eflag, int vflag)
+void PairREANN::compute(int eflag, int vflag)
 {
     if(eflag || vflag) ev_setup(eflag,vflag);
     else evflag = vflag_fdotr = eflag_global = eflag_atom = 0;
     double **x=atom->x;
     double **f=atom->f;
     int *type = atom->type; 
-    tagint *tag = atom->tag;
     int nlocal = atom->nlocal,nghost=atom->nghost;
     int *ilist,*jlist,*numneigh,**firstneigh;
     int i,ii,inum,j,jj,jnum,maxneigh;
@@ -196,10 +185,10 @@ void PairEANN::compute(int eflag, int vflag)
     // for getting the index of neigh list atom for all the local atom
     torch::Tensor atom_index=torch::empty({numneigh_atom,2},torch::dtype(torch::kLong));
     // for getting the index of neigh species list atom for all the local atom
-    torch::Tensor neigh_list=torch::empty({numneigh_atom},torch::dtype(torch::kLong));*/
+    torch::Tensor neigh_species=torch::empty({numneigh_atom},torch::dtype(torch::kLong));*/
     vector<double> cart(totdim);
     vector<long> atom_index(numneigh_atom*2);
-    vector<long> neigh_list(numneigh_atom);
+    vector<long> neigh_species(numneigh_atom);
     vector<long> local_species(inum);
     double dx,dy,dz,d2;
     double xtmp,ytmp,ztmp;
@@ -213,6 +202,7 @@ void PairEANN::compute(int eflag, int vflag)
             ++countnum;
         }
     }
+    
     for (ii=0; ii<inum; ++ii)
     {
         i=ilist[ii];
@@ -233,7 +223,7 @@ void PairEANN::compute(int eflag, int vflag)
             {
                 atom_index[totneigh*2]=i;
                 atom_index[totneigh*2+1]=j;
-                neigh_list[totneigh]=atom->map(tag[j]);
+                neigh_species[totneigh]=type[j]-1;
                 ++totneigh;
             }
         }
@@ -241,9 +231,9 @@ void PairEANN::compute(int eflag, int vflag)
     
     auto cart_=torch::from_blob(cart.data(),{nall,3},option1).to(device_tensor.device(),true).to(tensor_type);
     auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true);
-    auto neigh_list_=torch::from_blob(neigh_list.data(),{totneigh},option2).to(device_tensor.device(),true);
+    auto neigh_species_=torch::from_blob(neigh_species.data(),{totneigh},option2).to(device_tensor.device(),true);
     auto local_species_=torch::from_blob(local_species.data(),{inum},option2).to(device_tensor.device(),true);
-    auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_list_}).toTuple()->elements();
+    auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_species_}).toTuple()->elements();
     auto tensor_etot=outputs[0].toTensor().to(torch::kDouble).cpu();
     auto tensor_force=outputs[1].toTensor().to(torch::kDouble).cpu();
     auto tensor_atom_ene=outputs[2].toTensor().to(torch::kDouble).cpu();
@@ -270,7 +260,7 @@ void PairEANN::compute(int eflag, int vflag)
 }
 //#pragma GCC pop_options
 //
-int PairEANN::select_gpu() 
+int PairREANN::select_gpu() 
 {
     int totalnodes, mynode;
     int trap_key = 0;

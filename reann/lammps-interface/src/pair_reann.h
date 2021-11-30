@@ -1,11 +1,11 @@
 #ifdef PAIR_CLASS
 
-PairStyle(eann,PairEANN)   // eann is the name in the input script
+PairStyle(reann,PairREANN)   // reann is the name in the input script
 
 #else
 
-#ifndef LMP_PAIR_EANN_H
-#define LMP_PAIR_EANN_H
+#ifndef LMP_PAIR_REANN_H
+#define LMP_PAIR_REANN_H
 
 #include "pair.h"
 #include <torch/torch.h>
@@ -14,12 +14,12 @@ PairStyle(eann,PairEANN)   // eann is the name in the input script
 
 namespace LAMMPS_NS 
 {
-    class PairEANN : public Pair 
+    class PairREANN : public Pair 
     { 
          public:
              torch::jit::script::Module module;
-             PairEANN(class LAMMPS *);
-             virtual ~PairEANN();
+             PairREANN(class LAMMPS *);
+             virtual ~PairREANN();
              virtual void compute(int, int);
              virtual void init_style();
              virtual double init_one(int, int);

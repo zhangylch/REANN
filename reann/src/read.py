@@ -16,39 +16,39 @@ fout.write("REANN Package used for fitting energy and tensorial Property\n")
 start_table=0                  # 0 for energy 1 for force 2 for dipole 3 for transition dipole moment 4 for polarizability
 table_coor=0                   # 0: cartestion coordinates used 1: fraction coordinates used
 table_init=0                   # 1: a pretrained or restart  
-nblock = 2                     # nblock>=2  resduial NN block will be employed nblock=1: simple feedforward nn
+nblock = 1                     # nblock>=2  resduial NN block will be employed nblock=1: simple feedforward nn
 ratio=0.9                      # ratio for vaildation
 #==========================================================
 Epoch=10000                  # total numbers of epochs for fitting 
-patience_epoch=500              # patience epoch  Number of epochs with no improvement after which learning rate will be reduced. 
-decay_factor=0.6               # Factor by which the learning rate will be reduced. new_lr = lr * factor.      
-print_epoch=10                 # number of epoch to calculate and print the error
+patience_epoch=100              # patience epoch  Number of epochs with no improvement after which learning rate will be reduced. 
+decay_factor=0.5               # Factor by which the learning rate will be reduced. new_lr = lr * factor.      
+print_epoch=1                 # number of epoch to calculate and print the error
 # adam parameter                 
 start_lr=0.001                  # initial learning rate
-end_lr=1e-4                    # final learning rate
+end_lr=1e-5                    # final learning rate
 #==========================================================
 # regularization coefficence
 re_ceff=0.0                 # L2 normalization cofficient
 batchsize_train=32                  # batch size 
-batchsize_test=512                  # batch size 
+batchsize_test=256                  # batch size 
 e_ceff=0.1                    # weight of energy
 init_f = 10                 # initial force weight in loss function
 final_f = 5e-1                # final force weight in loss function
 nl=[128,128]                  # NN structure
-dropout_p=[0.0,0.0,0.0]           # dropout probability for each hidden layer
+dropout_p=[0.0,0.0]           # dropout probability for each hidden layer
 activate = 'Relu_like'          # default "Tanh_like", optional "Relu_like"
 queue_size=10
 table_norm= True
 find_unused = False
 #===========param for orbital coefficient ===============================================
-oc_loop = 0
+oc_loop = 1
 oc_nl = [128,128]          # neural network architecture   
 oc_nblock = 1
-oc_dropout_p=[0.0,0.0,0.0,0.0]
+oc_dropout_p=[0.0,0.0]
 #=====================act fun===========================
 oc_activate = 'Relu_like'          # default "Tanh_like", optional "Relu_like"
 #========================queue_size sequence for laod data into gpu
-oc_table_norm=False
+oc_table_norm=True
 DDP_backend="nccl"
 # floder to save the data
 floder="./"
