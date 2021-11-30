@@ -2,7 +2,7 @@ Recursively embedded atom neural network
 =================================================
 **Introduction:**
 ___________________________
-  Recursively embedded atom neural network (REANN) is a python package implemented based on the PyTorch framework used to train interatomic potentials, dipole moments, transition dipole moments and polarizabilities of various systems. Making use of the autograd and distributed parallelism implementations in PyTorch, REANN can run spanning multiple nodes on the GPU/CPU with high efficiency. The output model can be compiled to a serialized file via torchscript, which can be loaded in C++ for convenience and efficient interfacing with molecular dynamics software. Currently, REANN model has been interfaced with LAMMPS as a new "pair_style". More details can be found in the manual.
+  Recursively embedded atom neural network (REANN) is a PyTorch-based end-to-end multi-functional Deep Neural Network Package for Molecular, Reactive and Periodic Systems. Currently, REANN can be used to train interatomic potentials, dipole moments, transition dipole moments, and polarizabilities. Taking advantage of Distributed DataParallel features embedded in PyTorch, the training process is highly parallelized on both GPU and CPU. For the convenience of MD simulation, an interface to LAMMPS has been constructed by creating a new pair_style invoking this representation for highly efficient MD simulations. More details can be found on the manual.
 
 **Requirements:**
 ___________________________________
