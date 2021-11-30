@@ -17,14 +17,14 @@ class PES(torch.nn.Module):
         nl=[128,128]                # NN structure
         dropout_p=[0.0,0.0,0.0]       # dropout probability for each hidden layer
         activate = 'Relu_like'
-        table_norm = False
-        oc_loop = 0
+        table_norm = True
+        oc_loop = 1
         oc_nl = [32,32]          # neural network architecture   
         oc_nblock = 1
         oc_dropout_p=[0.0,0.0,0.0,0.0]
         oc_activate = 'Relu_like'
         #========================queue_size sequence for laod data into gpu
-        oc_table_norm=False
+        oc_table_norm=True
         norbit=None
         #======================read input_nn==================================
         with open('para/input_nn','r') as f1:
@@ -42,8 +42,9 @@ class PES(torch.nn.Module):
         outputneuron=3
         #======================read input_nn=============================================
         nipsin=2
-        cutoff=4.0
-        nwave=6
+        cutoff=4.5
+        nwave=7
+        neigh_atoms=150
         with open('para/input_density','r') as f1:
            while True:
               tmp=f1.readline()

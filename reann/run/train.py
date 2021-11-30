@@ -6,6 +6,7 @@ from src.optimize import *
 from src.density import *
 from src.MODEL import *
 from src.EMA import *
+from torch.nn.parallel import DistributedDataParallel as DDP
 if activate=='Tanh_like':
     from src.activate import Tanh_like as actfun
 else:

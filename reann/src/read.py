@@ -7,7 +7,6 @@ from src.get_info_of_rank import *
 from src.gpu_sel import *
 # used for DDP
 import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
 
 # open a file for output information in iterations
 fout=open('nn.err','w')
