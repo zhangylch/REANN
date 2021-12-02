@@ -1,7 +1,7 @@
 #!/bin/sh
 #PBS -V
 #PBS -q gpu
-#PBS -N H2O-3
+#PBS -N co2+ni100
 #PBS -l nodes=1:ppn=1
 source /share/home/bjiangch/group-zyl/.bash_profile
 # conda environment
