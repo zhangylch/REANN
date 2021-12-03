@@ -1,0 +1,13 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Zhang
+    given-names: Yaolong
+  orcid: https://orcid.org/0000-0002-4601-0461
+  - family-names: Jiang
+    given-names: Bin
+  orcid: https://orcid.org/0000-0003-2696-5436
+title: "REANN"
+version: v_1.0
+doi: 
+date-released: 2021-12_02
