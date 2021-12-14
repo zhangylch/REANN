@@ -1,0 +1,42 @@
+# required parameters 
+  start_table = 4                # start_table table for the fit with force(1) or without force(0)
+                                 # start_table table for DM(2), TDM(3), polarizability(4)
+  table_coor = 1                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
+  nl = [32,32]          # neural network architecture   
+ # nl = [512,512,512,512]          # neural network architecture   
+  nblock =  1
+  dropout_p=[0.0,0.0]
+  table_init = 1              # 1 used for load parameters from pth 
+  nkpoint=1                      # number of nkpoint NNs was employed to representation polarizability
+# NN epoch and NN optimize parameters
+  Epoch=20000                    # max iterations epoch                 
+  patience_epoch = 200            # pre initial learning rate epoch   
+  decay_factor = 0.5             # Factor by which the learning rate will be reduced. new_lr = lr * factor.
+  start_lr = 0.001               # initial learning rate
+  end_lr =1e-5                  # final learning rate
+  re_ceff = 0                # factor for regularization
+# wave epoch and wave optimize parameters
+  ratio = 0.9                    # ratio for training
+  Find_unused=True
+# =====================================================================
+  batchsize = 128                # batch_size
+  e_ceff=0.1
+  init_f=50                     # init_f
+  final_f=0.5                     # final_f
+#========================queue_size sequence for laod data into gpu
+  queue_size=10
+  print_epoch=5
+  table_norm=True
+  DDP_backend='nccl' 
+  activate = 'Relu_like'
+  dtype="float32"
+#===========param for orbital coefficient ===============================================
+     oc_nl = [32,32]          # neural network architecture   
+     oc_nblock = 1
+     oc_dropout_p=[0,0,0,0]
+     oc_activate = 'Relu_like'
+   #========================queue_size sequence for laod data into gpu
+     oc_table_norm=True
+     oc_loop=4
+#========================floder used to save the data========================
+  floder="./"  # data can be found in repo "https://github.com/zhangylch/Learning-Dipole-Moments-and-Polarizabilities"
