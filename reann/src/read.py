@@ -8,6 +8,7 @@ from src.gpu_sel import *
 # used for DDP
 import torch.distributed as dist
 
+
 # open a file for output information in iterations
 fout=open('nn.err','w')
 fout.write("REANN Package used for fitting energy and tensorial Property\n")
@@ -169,14 +170,11 @@ for ipoint in range(numpoint[0],ntotpoint):
 #=====================environment for select the GPU in free=================================================
 local_rank = int(os.environ.get("LOCAL_RANK"))
 local_size = int(os.environ.get("LOCAL_WORLD_SIZE"))
-
 if local_size==1 and local_rank==0: gpu_sel()
-
 world_size = int(os.environ.get("WORLD_SIZE"))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu",local_rank)
 dist.init_process_group(backend=DDP_backend)
 a=torch.empty(100000,device=device)  # used for apply some memory to prevent two process on the smae gpu
-
 # device the batchsize to each rank
 batchsize_train=int(batchsize_train/world_size)
 batchsize_test=int(batchsize_test/world_size)

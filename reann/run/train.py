@@ -98,7 +98,7 @@ if table_init==1:
         device1=device
     else:
         device1="cpu"
-    checkpoint = torch.load("EANN.pth",map_location=torch.device(device1))
+    checkpoint = torch.load("REANN.pth",map_location=torch.device(device1))
     Prop_class.load_state_dict(checkpoint['eannparam'])
     optim.load_state_dict(checkpoint['optimizer'])
     if optim.param_groups[0]["lr"]>start_lr: optim.param_groups[0]["lr"]=start_lr  #for restart with a learning rate 
