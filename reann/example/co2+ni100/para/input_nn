@@ -5,7 +5,7 @@
   nl = [64,64]          # neural network architecture   
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1
-  dropout_p=[0.0,0.0]
+  dropout_p=[0.0,0.0,0.0,0.0]
   table_init = 1              # 1 used for load parameters from pth 
   nkpoint=1                      # number of nkpoint NNs was employed to representation polarizability
 # NN epoch and NN optimize parameters
@@ -17,9 +17,9 @@
   re_ceff = 0                # factor for regularization
 # wave epoch and wave optimize parameters
   ratio = 0.9                    # ratio for training
-  Find_unused=True
 # =====================================================================
-  batchsize = 128                # batch_size
+  batchsize_train = 128                # batch_size
+  batchsize_test = 256                # batch_size
   e_ceff=0.1
   init_f=50                     # init_f
   final_f=0.5                     # final_f
@@ -39,4 +39,4 @@
      oc_table_norm=True
      oc_loop=3
 #========================floder used to save the data========================
-  floder="./data/co2+ni100/"
+  floder="/home/home/zyl/pytorch/2021_9_5/data/co2+ni100/"
