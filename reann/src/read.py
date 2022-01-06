@@ -178,6 +178,8 @@ a=torch.empty(100000,device=device)  # used for apply some memory to prevent two
 # device the batchsize to each rank
 batchsize_train=int(batchsize_train/world_size)
 batchsize_test=int(batchsize_test/world_size)
+#=======get the minimal data in each process for fixing the bug of different step for each process
+min_data_len=numpoint[0]-int(np.ceil(numpoint[0]/world_size))*(world_size-1)
 # devide the work on each rank
 # get the shifts and atom_index of each neighbor for train
 rank=dist.get_rank()
