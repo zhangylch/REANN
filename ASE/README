@@ -1,3 +1,41 @@
-The eann.py and reann.py are placed in the PATH/ase/calculate folder.
+The eann.py and reann.py are placed in the PATH/ase/calculators folder.
 
-And add the eann and reann calculator to the PATH/ase/calculate/calculator.py, which is the same as eam.
+And write the eann and reann calculator to the PATH/ase/calculators/calculator.py, which is the same as eam in 128 and 137 lines
+
+it is written by below:
+names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
+         'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam','eann',
+         'elk', 'emt', 'espresso', 'exciting', 'ff', 'fleur', 'gamess_us',
+         'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
+         'lammpslib', 'lammpsrun', 'lj', 'manual_written','mopac', 'morse', 'nwchem',
+         'octopus', 'onetep', 'openmx', 'orca', 'psi4', 'qchem','reann', 'siesta',
+         'tip3p', 'tip4p', 'turbomole', 'vasp']
+
+special = {'cp2k': 'CP2K',
+           'demonnano': 'DemonNano',
+           'dftd3': 'DFTD3',
+           'dmol': 'DMol3',
+           'eam': 'EAM',
+           'eann': 'EANN',
+           'elk': 'ELK',
+           'emt': 'EMT',
+           'crystal': 'CRYSTAL',
+           'ff': 'ForceField',
+           'fleur': 'FLEUR',
+           'gamess_us': 'GAMESSUS',
+           'gulp': 'GULP',
+           'kim': 'KIM',
+           'lammpsrun': 'LAMMPS',
+           'lammpslib': 'LAMMPSlib',
+           'lj': 'LennardJones',
+           'manual_written':'Manual_written',
+           'mopac': 'MOPAC',
+           'morse': 'MorsePotential',
+           'nwchem': 'NWChem',
+           'openmx': 'OpenMX',
+           'orca': 'ORCA',
+           ' reann': 'REANN',
+           'qchem': 'QChem',
+           'tip3p': 'TIP3P',
+           'tip4p': 'TIP4P',
+            }
