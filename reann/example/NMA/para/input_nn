@@ -1,8 +1,8 @@
 # required parameters 
-  start_table = 1                # start_table table for the fit with force(1) or without force(0)
+  start_table = 4                # start_table table for the fit with force(1) or without force(0)
                                  # start_table table for DM(2), TDM(3), polarizability(4)
   table_coor = 1                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
-  nl = [64,64]          # neural network architecture   
+  nl = [32,32]          # neural network architecture   
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1
   dropout_p=[0.0,0.0]
@@ -31,12 +31,12 @@
   activate = 'Relu_like'
   dtype="float32"
 #===========param for orbital coefficient ===============================================
-     oc_nl = [64,64]          # neural network architecture   
+     oc_nl = [32,32]          # neural network architecture   
      oc_nblock = 1
      oc_dropout_p=[0,0,0,0]
      oc_activate = 'Relu_like'
    #========================queue_size sequence for laod data into gpu
      oc_table_norm=True
-     oc_loop=3
+     oc_loop=4
 #========================floder used to save the data========================
-  floder="./data/co2+ni100/"
+  floder="./"  # data can be found in repo "https://github.com/zhangylch/Learning-Dipole-Moments-and-Polarizabilities"

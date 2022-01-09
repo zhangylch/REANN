@@ -45,7 +45,7 @@ elif start_table==4:
 
 #==============================train data loader===================================
 dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
-species_train,atom_index_train,shifts_train,batchsize_train,shuffle=True)
+species_train,atom_index_train,shifts_train,batchsize_train,min_data_len=min_data_len,shuffle=True)
 #=================================test data loader=================================
 dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
 species_test,atom_index_test,shifts_test,batchsize_test,shuffle=False)
@@ -98,9 +98,10 @@ if table_init==1:
         device1=device
     else:
         device1="cpu"
-    checkpoint = torch.load("EANN.pth",map_location=torch.device(device1))
-    Prop_class.load_state_dict(checkpoint['eannparam'])
+    checkpoint = torch.load("REANN.pth",map_location=torch.device(device1))
+    Prop_class.load_state_dict(checkpoint['reannparam'])
     optim.load_state_dict(checkpoint['optimizer'])
+    nnmod.initpot[0]=initpot
     if optim.param_groups[0]["lr"]>start_lr: optim.param_groups[0]["lr"]=start_lr  #for restart with a learning rate 
     if optim.param_groups[0]["lr"]<end_lr: optim.param_groups[0]["lr"]=start_lr  #for restart with a learning rate 
     lr=optim.param_groups[0]["lr"]
