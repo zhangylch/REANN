@@ -2,7 +2,7 @@
 """
 Created on Sun Nov 28 15:52:34 2021
 
-@author: DELL
+@author: Jia-lan Chen
 """
 
 import ase.io.vasp
