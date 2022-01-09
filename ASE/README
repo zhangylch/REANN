@@ -1,0 +1,3 @@
+The eann.py and reann.py are placed in the PATH/ase/calculate folder.
+
+And add the eann and reann calculator to the PATH/ase/calculate/calculator.py, which is the same as eam.
