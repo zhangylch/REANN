@@ -29,9 +29,9 @@ period=[1,1,0]
 #---------------nn file('EANN_PES_DOUBLE.pt' is default in eann,'REANN_PES_DOUBLE.pt' is default in reann)----------------------------
 nn = 'EANN_PES_DOUBLE.pt'
 #----------------------eann --------------------------------
-atoms.calc = EANN(device=device,atomtype=atomtype,period=period,nn = nn)
+#atoms.calc = EANN(device=device,atomtype=atomtype,period=period,nn = nn)
 #----------------------------reann---------------------------------
-#atoms.calc = REANN(atomtype=atomtype,period=[1,1,0],nn = 'EANN_PES_DOUBLE.pt')
+#atoms.calc = REANN(device=device,atomtype=atomtype,period=[1,1,0],nn = 'REANN_PES_DOUBLE.pt')
 print(atoms)
 dyn = LBFGS(atoms,trajectory='atom2.traj')
 dyn.run(fmax=0.1,steps=100)
