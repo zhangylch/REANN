@@ -40,3 +40,6 @@ special = {'cp2k': 'CP2K',
            'tip3p': 'TIP3P',
            'tip4p': 'TIP4P',
             }
+            
+ase_eann.py is the example how to use the ase with the eann and reann.
+example.tar is the example if or not operate successfully.
