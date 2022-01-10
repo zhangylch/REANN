@@ -1,6 +1,7 @@
-The eann.py and reann.py are placed in the PATH/ase/calculators folder.
+The eann.py and reann.py are placed in the PATH/ase/calculators/ folder.  (PATH is the path of ase)
 
-And write the eann and reann calculator to the PATH/ase/calculators/calculator.py, which is the same as eam in 128 and 137 lines
+And write the eann and reann calculator to the PATH/ase/calculators/calculator.py, which is the same as eam in 128 and 137 lines.
+add the eann and reann to names, and add 'eann' : 'EANN', 'reann' :'REANN' to the special.
 
 it is written by below:
 names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
