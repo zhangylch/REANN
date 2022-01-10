@@ -1,4 +1,5 @@
-eann.py is the interface with EANN package (if you use the EANN package which is old version), and reann.py is the interface with REANN package (recommend***)
+eann.py is the interface with EANN package (if you use the EANN package which is old version)
+and reann.py is the interface with REANN package (***recommend***)
 
 The eann.py and reann.py are placed in the PATH/ase/calculators/ folder.  (PATH is the path of ase)
 
