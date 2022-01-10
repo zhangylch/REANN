@@ -28,9 +28,9 @@ device='cpu'
 period=[1,1,0]
 #---------------nn file('EANN_PES_DOUBLE.pt' is default in eann,'REANN_PES_DOUBLE.pt' is default in reann)----------------------------
 nn = 'EANN_PES_DOUBLE.pt'
-#----------------------eann --------------------------------
+#----------------------eann (if you use EANN package )--------------------------------
 #atoms.calc = EANN(device=device,atomtype=atomtype,period=period,nn = nn)
-#----------------------------reann---------------------------------
+#----------------------------reann (if you use REANN package ****recommend****)---------------------------------
 #atoms.calc = REANN(device=device,atomtype=atomtype,period=[1,1,0],nn = 'REANN_PES_DOUBLE.pt')
 print(atoms)
 dyn = LBFGS(atoms,trajectory='atom2.traj')
