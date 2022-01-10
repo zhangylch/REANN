@@ -1,3 +1,6 @@
+"""the interface with EANN package (if you use the EANN package which is old version)"""
+
+
 import numpy as np
 import os
 import torch
