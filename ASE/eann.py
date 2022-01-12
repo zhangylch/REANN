@@ -27,7 +27,7 @@ class EANN(Calculator):
         pes=torch.jit.load(nn)
         pes.to(device).to(torch.double)
         pes.eval()
-        pes=torch.jit.optimize_for_inference(pes)
+        # pes=torch.jit.optimize_for_inference(pes)
         self.pes = pes
 
     #def initialize(self,atomtype,divice='cpu',pes='EANN_PES_DOUBLE.pt'):
