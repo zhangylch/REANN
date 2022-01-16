@@ -11,6 +11,6 @@ class Restart():
             device="cuda"
         else:
             device="cpu"
-        checkpoint = torch.load(checkfile,map_location=device)
+        checkpoint = torch.load(checkfile,map_location=torch.device(device))
         model.load_state_dict(checkpoint['reannparam'])
         self.optim.load_state_dict(checkpoint['optimizer'])
