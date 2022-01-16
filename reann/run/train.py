@@ -6,6 +6,7 @@ from src.optimize import *
 from src.density import *
 from src.MODEL import *
 from src.EMA import *
+from src.restart import *
 from torch.nn.parallel import DistributedDataParallel as DDP
 if activate=='Tanh_like':
     from src.activate import Tanh_like as actfun
@@ -92,15 +93,12 @@ optim=torch.optim.AdamW(Prop_class.parameters(), lr=start_lr, weight_decay=re_ce
 # learning rate scheduler 
 scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau(optim,factor=decay_factor,patience=patience_epoch,min_lr=end_lr)
 
+#define the restart
+restart=Restart(optim)
+
 # load the model from EANN.pth
 if table_init==1:
-    if torch.cuda.is_available():
-        device1=device
-    else:
-        device1="cpu"
-    checkpoint = torch.load("REANN.pth",map_location=torch.device(device1))
-    Prop_class.load_state_dict(checkpoint['reannparam'])
-    optim.load_state_dict(checkpoint['optimizer'])
+    restart(Prop_class,"REANN.pth")
     nnmod.initpot[0]=initpot
     if optim.param_groups[0]["lr"]>start_lr: optim.param_groups[0]["lr"]=start_lr  #for restart with a learning rate 
     if optim.param_groups[0]["lr"]<end_lr: optim.param_groups[0]["lr"]=start_lr  #for restart with a learning rate 
@@ -117,8 +115,8 @@ if dist.get_rank()==0:
     for name, m in Prop_class.named_parameters():
         print(name)
 #==========================================================
-Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,start_lr,end_lr,print_epoch,Epoch,\
-data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,PES_Normal,device,PES_Lammps=PES_Lammps)
+Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
+data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=PES_Lammps)
 if dist.get_rank()==0:
     fout.write(time.strftime("%Y-%m-%d-%H_%M_%S \n", time.localtime()))
     fout.write("terminated normal\n")

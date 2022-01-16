@@ -74,8 +74,6 @@ void PairREANN::init_style()
             module = torch::jit::load("REANN_LAMMPS_FLOAT.pt");
             tensor_type = torch::kFloat32;
         }
-        // freeze the module
-        module=torch::jit::optimize_for_inference(module);
         int id;
         if (torch::cuda::is_available()) 
         {
@@ -97,6 +95,8 @@ void PairREANN::init_style()
             device=torch::Device(device_type);
         }*/
         module.eval();
+        // freeze the module
+        module=torch::jit::optimize_for_inference(module);
     }
     catch (const c10::Error& e) 
     {

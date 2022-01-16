@@ -4,8 +4,8 @@ import numpy as np
 import torch.distributed as dist
 
 
-def Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,start_lr,end_lr,print_epoch,Epoch,data_train,data_test,\
-Prop_class,loss_fn,optim,scheduler,ema,PES_Normal,device,PES_Lammps=None): 
+def Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
+data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=None): 
 
     rank=dist.get_rank()
     best_loss=1e30*torch.ones(1,device=device)    
@@ -59,23 +59,28 @@ Prop_class,loss_fn,optim,scheduler,ema,PES_Normal,device,PES_Lammps=None):
 
           # all_reduce the rmse
           dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          loss=torch.sum(lossprop)
+          loss=torch.sum(torch.mul(loss,prop_ceff[0:nprop]))
           scheduler.step(loss)
           lr=optim.param_groups[0]["lr"]
           f_ceff=init_f+(final_f-init_f)*(lr-start_lr)/(end_lr-start_lr+1e-8)
           prop_ceff[1]=f_ceff
           #  save the best model
-          if lossprop[0]<best_loss[0]:
+          if loss<best_loss[0]:
+             best_loss[0]=loss
              if rank == 0:
                  state = {'reannparam': Prop_class.state_dict(), 'optimizer': optim.state_dict()}
                  torch.save(state, "./REANN.pth")
-                 best_loss[0]=lossprop[0]
                  PES_Normal.jit_pes()
                  if PES_Lammps:
                      PES_Lammps.jit_pes()
           
           # restore the model for continue training
           ema.restore()
+          # back to the best error
+          if loss>25*best_loss[0]:
+              restart(Prop_class,"REANN.pth")
+              optim.param_groups[0]["lr"]=optim.param_groups[0]["lr"]*decay_factor
+
           if rank==0:
               lossprop=torch.sqrt(lossprop.detach().cpu()/test_nele)
               fout.write('{} '.format("test error:"))
