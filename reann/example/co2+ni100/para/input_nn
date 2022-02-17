@@ -6,7 +6,7 @@
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1
   dropout_p=[0.0,0.0,0.0,0.0]
-  table_init = 1              # 1 used for load parameters from pth 
+  table_init = 0             # 1 used for load parameters from pth 
   nkpoint=1                      # number of nkpoint NNs was employed to representation polarizability
 # NN epoch and NN optimize parameters
   Epoch=20000                    # max iterations epoch                 
