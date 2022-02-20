@@ -89,5 +89,5 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
               # if stop criterion
               fout.write("\n")
               fout.flush()
-          if lr==end_lr: break
+          if lr <=end_lr: break
 

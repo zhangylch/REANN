@@ -175,15 +175,15 @@ world_size = int(os.environ.get("WORLD_SIZE"))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu",local_rank)
 dist.init_process_group(backend=DDP_backend)
 a=torch.empty(100000,device=device)  # used for apply some memory to prevent two process on the smae gpu
+if batchsize_train<world_size or batchsize_test<world_size:
+    raise RuntimeError("The batchsize used for training or test dataset are smaller than the number of processes, please decrease the number of processes.")
 # device the batchsize to each rank
 batchsize_train=int(batchsize_train/world_size)
 batchsize_test=int(batchsize_test/world_size)
-if batchsize_train<0 or batchsize_test<0:
-    raise RuntimeError("The batchsize used for training or test dataset are smaller than the number of processes, please decrease the number of processes.")
 #=======get the minimal data in each process for fixing the bug of different step for each process
 min_data_len_train=numpoint[0]-int(np.ceil(numpoint[0]/world_size))*(world_size-1)
 min_data_len_test=numpoint[1]-int(np.ceil(numpoint[1]/world_size))*(world_size-1)
-if min_data_len_train<0 or min_data_len_test<0:
+if min_data_len_train<=0 or min_data_len_test<=0:
     raise RuntimeError("The size of training or test dataset are smaller than the number of processes, please decrease the number of processes.")
 # devide the work on each rank
 # get the shifts and atom_index of each neighbor for train
