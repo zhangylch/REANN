@@ -20,7 +20,7 @@ cell1 = ase.io.vasp.read_vasp("POSCAR")
 atoms = Atoms(cell1)
 #print(atoms.positions)
 #atomtype = ['Pt','Fe','O']
-#--------------the type of atom--------------
+#--------------the type of atom, which is the same as atomtype which is in para/input_denisty--------------
 atomtype = ['Cu','Ce','O','C']
 #-----------------the device is cpu or gpu( cpu is default)---------------
 device='cpu'
