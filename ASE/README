@@ -3,7 +3,9 @@ eann.py is the interface with EANN package (if you use the EANN package which is
 reann.py is the interface with REANN package (***recommend*** this package is REANN)
 
 ***Very important thing***:
-When you use this interfance for multiprocessing, there is a error about can't pickle module objects.
+(1) Read the ase_eann.py how to set the parameter to use ase with reann(eann), especially atomtype.
+
+(2) When you use this interfance for multiprocessing, there is a error about can't pickle module objects.
 Because the interfance loads the nn model as initial, and pytorch can't deepcopy and can't pickle module.
 If you appear these problems, you need to cancel the nn model as initial in reann.py, and write the pes in other place, 
 such as in the calculator, although the speed is slower.
