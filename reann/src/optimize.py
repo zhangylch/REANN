@@ -77,7 +77,7 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           # restore the model for continue training
           ema.restore()
           # back to the best error
-          if loss>25*best_loss[0]:
+          if loss>25*best_loss[0] or loss.isnan():
               restart(Prop_class,"REANN.pth")
               optim.param_groups[0]["lr"]=optim.param_groups[0]["lr"]*decay_factor
 

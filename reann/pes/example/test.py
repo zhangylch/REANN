@@ -1,4 +1,3 @@
-# This is an example script to show how to obtain the energy and force by invoking the potential saved by the training .
 # Typically, you can read the structure,mass, lattice parameters(cell) and give the correct periodic boundary condition (pbc) and the index of each atom. All the information are required to store in the tensor of torch. Then, you just pass these information to the calss "pes" that will output the energy and force.
 
 import numpy as np
