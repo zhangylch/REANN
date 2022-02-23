@@ -1,12 +1,12 @@
 # required parameters 
   start_table = 4                # start_table table for the fit with force(1) or without force(0)
                                  # start_table table for DM(2), TDM(3), polarizability(4)
-  table_coor = 1                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
+  table_coor = 0                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
   nl = [32,32]          # neural network architecture   
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1
   dropout_p=[0.0,0.0]
-  table_init = 1              # 1 used for load parameters from pth 
+  table_init = 0              # 1 used for load parameters from pth 
   nkpoint=1                      # number of nkpoint NNs was employed to representation polarizability
 # NN epoch and NN optimize parameters
   Epoch=20000                    # max iterations epoch                 
@@ -19,7 +19,8 @@
   ratio = 0.9                    # ratio for training
   Find_unused=True
 # =====================================================================
-  batchsize = 128                # batch_size
+  batchsize_train = 128                # batch_size
+  batchsize_test = 256                # batch_size
   e_ceff=0.1
   init_f=50                     # init_f
   final_f=0.5                     # final_f

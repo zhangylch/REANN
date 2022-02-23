@@ -101,8 +101,10 @@ class PES(torch.nn.Module):
         neigh_list, shifts=self.neigh_list(period_table,cart,cell,mass)
         cart.requires_grad_(True)
         density=self.density(cart,neigh_list,shifts,species)
+        maxden=torch.max(density,dim=0)[0]
+        minden=torch.min(density,dim=0)[0]
         output = self.nnmod(density,species)+self.nnmod.initpot
         varene = torch.sum(output)
         grad = torch.autograd.grad([varene,],[cart,])[0]
         if grad is not None:
-            return varene.detach(),-grad.detach()
+            return varene.detach(),-grad.detach(),maxden,minden
