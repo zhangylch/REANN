@@ -1,3 +1,6 @@
+# This is an example script to show how to obtain the energy and force by invoking the potential saved by the training .
+# Typically, you can read the structure,mass, lattice parameters(cell) and give the correct periodic boundary condition (pbc) and t    he index of each atom. All the information are required to store in the tensor of torch. Then, you just pass these information to t    he calss "pes" that will output the energy and force.
+
 import numpy as np
 import torch
 from gpu_sel import *
@@ -8,7 +11,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # same as the atomtype in the file input_density
 atomtype=["O","Si"]
 #load the serilizable model
-pes=torch.jit.load("EANN_PES_DOUBLE.pt")
+pes=torch.jit.load("REANN_PES_DOUBLE.pt")
 # FLOAT: torch.float32; DOUBLE:torch.double for using float/double in inference
 pes.to(device).to(torch.double)
 # set the eval mode
@@ -53,10 +56,3 @@ with open("/home/home/zyl/pytorch/2021_1_7/data/SiO2/test-1/configuration",'r') 
         energy,force=pes(period_table,cart,tcell,species,mass)
         energy=energy.detach()
         force=force.detach()
-        rmse[0]+=torch.sum(torch.square(energy-abene))
-        rmse[1]+=torch.sum(torch.square(force-abforce))
-        npoint+=1
-rmse=rmse.detach().cpu().numpy()
-print(np.sqrt(rmse[0]/npoint))
-print(np.sqrt(rmse[1]/npoint/180))
-print(npoint)
