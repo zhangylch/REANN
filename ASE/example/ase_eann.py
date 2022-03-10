@@ -7,16 +7,16 @@ Created on Sun Nov 28 15:52:34 2021
 
 import ase.io.vasp
 from ase import Atoms
-from ase.calculators.eann import EANN
+#from ase.calculators.eann import EANN
 from ase.calculators.reann import REANN
 #import os
 #import re
-from ase.optimize.minimahopping import MinimaHopping
-from ase.optimize.minimahopping import MHPlot
+#from ase.optimize.minimahopping import MinimaHopping
+#from ase.optimize.minimahopping import MHPlot
 from ase.optimize import LBFGS
 from ase.io.trajectory import Trajectory
-import pickle
-import torch
+#import pickle
+#import torch
 import numpy as np
 
 cell1 = ase.io.vasp.read_vasp("POSCAR")
