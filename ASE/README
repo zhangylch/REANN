@@ -56,4 +56,4 @@ special = {'cp2k': 'CP2K',
             }
             
 ase_eann.py is the example how to use the ase with the eann and reann.
-example.tar is the example if or not operate successfully.
+example is the example if or not operate successfully.
