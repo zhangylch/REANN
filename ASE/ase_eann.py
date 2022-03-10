@@ -20,7 +20,7 @@ cell1 = ase.io.vasp.read_vasp("POSCAR")
 atoms = Atoms(cell1)
 #print(atoms.positions)
 #--------------the type of atom, which is the same as atomtype which is in para/input_denisty--------------
-atomtype = ['Pt','Fe','O'
+atomtype = ['Pt','Fe','O']
 #atomtype = ['Cu','Ce','O','C']
 #-----------------the device is cpu or gpu( cpu is default)---------------
 device='cpu'
@@ -34,7 +34,7 @@ nn = 'REANN_PES_DOUBLE.pt'
 atoms.calc = REANN(device=device,atomtype=atomtype,period=period,nn = nn)
 print(atoms)
 dyn = LBFGS(atoms,trajectory='atom2.traj')
-dyn.run(fmax=0.1,steps=100)
+dyn.run(fmax=0.2,steps=100)
 traj = Trajectory('atom2.traj')
 atoms = traj[-1]
 print(atoms.get_potential_energy())
