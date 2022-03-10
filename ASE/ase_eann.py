@@ -19,19 +19,19 @@ from ase.io.trajectory import Trajectory
 cell1 = ase.io.vasp.read_vasp("POSCAR")
 atoms = Atoms(cell1)
 #print(atoms.positions)
-#atomtype = ['Pt','Fe','O']
 #--------------the type of atom, which is the same as atomtype which is in para/input_denisty--------------
-atomtype = ['Cu','Ce','O','C']
+atomtype = ['Pt','Fe','O'
+#atomtype = ['Cu','Ce','O','C']
 #-----------------the device is cpu or gpu( cpu is default)---------------
 device='cpu'
 #-------------------------pbc([1,1,1] is default)---------------------
-period=[1,1,0]
+period=[1,1,1]
 #---------------nn file('EANN_PES_DOUBLE.pt' is default in eann,'REANN_PES_DOUBLE.pt' is default in reann)----------------------------
-nn = 'EANN_PES_DOUBLE.pt'
+nn = 'REANN_PES_DOUBLE.pt'
 #----------------------eann (if you use EANN package )--------------------------------
 #atoms.calc = EANN(device=device,atomtype=atomtype,period=period,nn = nn)
 #----------------------------reann (if you use REANN package ****recommend****)---------------------------------
-#atoms.calc = REANN(device=device,atomtype=atomtype,period=[1,1,0],nn = 'REANN_PES_DOUBLE.pt')
+atoms.calc = REANN(device=device,atomtype=atomtype,period=period,nn = nn)
 print(atoms)
 dyn = LBFGS(atoms,trajectory='atom2.traj')
 dyn.run(fmax=0.1,steps=100)
