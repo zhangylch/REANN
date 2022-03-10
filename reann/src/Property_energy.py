@@ -18,5 +18,7 @@ class Property(torch.nn.Module):
         density = self.density(cart,numatoms,species,atom_index,shifts)
         output=self.nnmod(density,species).view(numatoms.shape[0],-1)
         varene=torch.sum(output,dim=1)
+        np.set_printoptions(precision=9, suppress=True)
+        print(varene.detach().numpy(),flush=True)
         return varene,
 
