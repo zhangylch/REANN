@@ -14,7 +14,6 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
         # set the model to train
        Prop_class.train()
        lossprop=torch.zeros(nprop,device=device)        
-       print("train")
        for data in data_train:
           abProp,cart,numatoms,species,atom_index,shifts=data
           loss=loss_fn(Prop_class(cart,numatoms,species,atom_index,shifts),abProp)
@@ -51,7 +50,6 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
                   fout.write('{:10.5f} '.format(error))
           
           # calculate the test error
-          print("test")
           lossprop=torch.zeros(nprop,device=device)
           for data in data_test:
              abProp,cart,numatoms,species,atom_index,shifts=data

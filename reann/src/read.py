@@ -266,5 +266,3 @@ patience_epoch=patience_epoch/print_epoch
 # dropout_p for each hidden layer
 dropout_p=np.array(dropout_p,dtype=np_dtype)
 oc_dropout_p=np.array(oc_dropout_p,dtype=np_dtype)
-print(pot_train)
-print(pot_test)
