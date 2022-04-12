@@ -80,6 +80,7 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           if loss>25*best_loss[0] or loss.isnan():
               restart(Prop_class,"REANN.pth")
               optim.param_groups[0]["lr"]=optim.param_groups[0]["lr"]*decay_factor
+              ema.restart()
 
           if rank==0:
               lossprop=torch.sqrt(lossprop.detach().cpu()/test_nele)

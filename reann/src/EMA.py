@@ -30,3 +30,9 @@ class EMA():
                 if param.requires_grad:
                     param.copy_(self.backup[name])
             self.backup = {}
+
+    def restart(self):
+        with torch.no_grad():
+            for name, param in self.model.named_parameters():
+                if param.requires_grad:
+                    self.shadow[name] = param.detach().clone()
