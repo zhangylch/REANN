@@ -9,8 +9,8 @@ https://wiki.fysik.dtu.dk/ase/
 
 **Requirements:**
 ___________________________________
-* PyTorch 1.9.0
-* LibTorch 1.9.0
+* PyTorch 1.10.0
+* LibTorch 1.10.0
 * cmake 3.1.0
 * opt_einsum 3.2.0
 
