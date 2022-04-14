@@ -110,12 +110,8 @@ elif start_table==4:
 #========================use for read rs/inta or generate rs/inta================
 maxnumtype=len(atomtype)
 if 'rs' in locals().keys():
-   rs=torch.from_numpy(np.array(rs,dtype=np_dtype))
-   inta=torch.from_numpy(np.array(inta,dtype=np_dtype))
-   nwave=rs.shape[1]
-else:
-   inta=-(torch.rand(maxnumtype,nwave)+0.2)
-   rs=torch.rand(maxnumtype,nwave)*cutoff
+   inta=-(torch.rand(maxnumtype)+0.2)
+   rs=torch.rand(maxnumtype)*cutoff
 
 if not norbit:
     norbit=int((nwave+1)*nwave/2*(nipsin))

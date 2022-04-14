@@ -14,7 +14,7 @@ variable mass1             equal   15.9994
 variable mass2             equal   1.008
 variable input_structure   string  data.lmp
 variable integerate        string  verlet  # integerate algorithm in MD simulation
-variable poten_function    string  eann
+variable poten_function    string  reann
 variable datatype          string  float  # optional float/double
 #=======================comput rdf========================
 variable compute_style     string  rdf

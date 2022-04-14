@@ -1,0 +1,1 @@
+2022_2_17 commit: Fixed a bug that could occur when an unequal number of batches of different processes occurred during multi-process training.
