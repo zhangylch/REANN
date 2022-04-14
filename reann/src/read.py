@@ -55,6 +55,10 @@ DDP_backend="nccl"
 floder="./"
 dtype='float32'   #float32/float64
 norbit=None
+#===================== defalut values in input_density============================================
+nipsin=2
+cutoff=5.0
+nwave=8
 #======================read input_nn=================================================================
 with open('para/input_nn','r') as f1:
    while True:
@@ -79,10 +83,6 @@ else:
 torch.set_default_dtype(torch_dtype)
 
 #======================read input_density=============================================
-# defalut values in input_density
-nipsin=2
-cutoff=5.0
-nwave=6
 with open('para/input_density','r') as f1:
    while True:
       tmp=f1.readline()
@@ -169,6 +169,8 @@ local_size = int(os.environ.get("LOCAL_WORLD_SIZE"))
 if local_size==1 and local_rank==0: gpu_sel()
 world_size = int(os.environ.get("WORLD_SIZE"))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu",local_rank)
+if device=="cpu":
+    DDP_backend="gloo"
 dist.init_process_group(backend=DDP_backend)
 a=torch.empty(100000,device=device)  # used for apply some memory to prevent two process on the smae gpu
 if batchsize_train<world_size or batchsize_test<world_size:
