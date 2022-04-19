@@ -190,6 +190,10 @@ if min_data_len_train<=0 or min_data_len_test<=0:
 # devide the work on each rank
 # get the shifts and atom_index of each neighbor for train
 rank=dist.get_rank()
+#===================mkdir the floder used for saving the parameters==============================
+#fname="mkdir "+str(rank)
+#os.system(fname)
+#==================================================================================================
 rank_begin=int(np.ceil(numpoint[0]/world_size))*rank
 rank_end=min(int(np.ceil(numpoint[0]/world_size))*(rank+1),numpoint[0])
 range_train=[rank_begin,rank_end]

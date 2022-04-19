@@ -28,7 +28,7 @@ class Property(torch.nn.Module):
         create_graph=create_graph,only_inputs=True,allow_unused=True)[0]
         output=self.nnmod2(density,species).view(numatoms.shape[0],-1)
         varene=torch.sum(output,dim=1)
-        jab1=jab1+cart#jab2
+        jab1=jab1+cart
         polar=oe.contract("ijk,ikm -> ijm",jab1.permute(0,2,1).contiguous(),jab2,backend="torch")
         polar=polar+polar.permute(0,2,1)
         polar[:,0,0]=polar[:,0,0]+varene

@@ -100,7 +100,7 @@ class PES(torch.nn.Module):
         cart=cart.detach().clone()
         neigh_list, shifts=self.neigh_list(period_table,cart,cell,mass)
         density=self.density(cart,neigh_list,shifts,species)
-        output = self.nnmod(density,species)
+        output = self.nnmod(density,species).view(-1)
         selected_cart = cart.index_select(0, neigh_list.view(-1)).view(2, -1, 3)
         dist_vec = selected_cart[0] - selected_cart[1]-shifts
         tot_vec=torch.zeros((cart.shape[0],3),dtype=cart.dtype,device=cart.device)
