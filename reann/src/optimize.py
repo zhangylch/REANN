@@ -59,8 +59,8 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
 
           # all_reduce the rmse
           dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          loss=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
-          scheduler.step(loss)
+          lossprop=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
+          scheduler.step(lossprop)
           lr=optim.param_groups[0]["lr"]
           f_ceff=init_f+(final_f-init_f)*(lr-start_lr)/(end_lr-start_lr+1e-8)
           prop_ceff[1]=f_ceff
