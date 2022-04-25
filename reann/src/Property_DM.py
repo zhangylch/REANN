@@ -16,7 +16,7 @@ class Property(torch.nn.Module):
     def forward(self,cart,numatoms,species,atom_index,shifts,create_graph=None):
         species=species.view(-1)
         density = self.density(cart,numatoms,species,atom_index,shifts)
-        output=self.nnmod(density,species).view(numatoms.shape[0],-1)
+        output=self.nnmod(density,species).view(-1)
         tmp_index=torch.arange(numatoms.shape[0],device=cart.device)*cart.shape[1]
         self_mol_index=tmp_index.view(-1,1).expand(-1,atom_index.shape[2]).reshape(1,-1)
         cart_=cart.flatten(0,1)
@@ -28,7 +28,7 @@ class Property(torch.nn.Module):
         shift_values=shifts.view(-1,3).index_select(0,padding_mask)
         dist_vec = selected_cart[0] - selected_cart[1] + shift_values
         tot_vec = torch.zeros((species.shape[0],3),dtype=cart.dtype,device=cart.device)
-        tot_vec = torch.index_add(tot_vec,0,atom_index12,dist_vec)
+        tot_vec = torch.index_add(tot_vec,0,atom_index12[0],dist_vec)
         dipole=torch.sum(oe.contract("i,ij -> ij",output,tot_vec,backend="torch").view(cart.shape[0],-1,3),dim=1)
         return dipole,
 

@@ -59,7 +59,7 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
 
           # all_reduce the rmse
           dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          loss=torch.sum(torch.mul(loss,prop_ceff[0:nprop]))
+          loss=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
           scheduler.step(loss)
           lr=optim.param_groups[0]["lr"]
           f_ceff=init_f+(final_f-init_f)*(lr-start_lr)/(end_lr-start_lr+1e-8)
@@ -73,11 +73,14 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
                  PES_Normal.jit_pes()
                  if PES_Lammps:
                      PES_Lammps.jit_pes()
+             # the barrier is used to prevent multiple processes from accessing the "REANN.pth" at the same time.
+             # for example, when process 0  is saving the model to generate "REANN.pth" and the other processes are reading the "REANN.pth".
           
           # restore the model for continue training
           ema.restore()
           # back to the best error
           if loss>25*best_loss[0] or loss.isnan():
+              dist.barrier()
               restart(Prop_class,"REANN.pth")
               optim.param_groups[0]["lr"]=optim.param_groups[0]["lr"]*decay_factor
               ema.restart()
