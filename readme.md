@@ -15,7 +15,7 @@ ___________________________________
 * opt_einsum 3.2.0
 
 **References:**
-_________________________________________________
+__________________________________________________
 If you use this package, please cite these works.
 1. The original EANN model: Yaolong Zhang, Ce Hu and Bin Jiang *J. Phys. Chem. Lett.* 10, 4962-4967 (2019).
 2. The EANN model for dipole/transition dipole/polarizability: Yaolong Zhang  Sheng Ye, Jinxiao Zhang, Jun Jiang and Bin Jiang *J. Phys. Chem. B*  124, 7284–7290 (2020).
