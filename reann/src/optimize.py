@@ -39,7 +39,6 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           # all_reduce the rmse form the training process 
           # here we dont need to recalculate the training error for saving the computation
           dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          loss=torch.sum(lossprop)
           
           # get the current rank and print the error in rank 0
           if rank==0:
@@ -58,9 +57,9 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
              lossprop=lossprop+loss.detach()
 
           # all_reduce the rmse
-          dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          lossprop=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
-          scheduler.step(lossprop)
+          dist.all_reduce(lossprop.detach(),op=dist.ReduceOp.SUM)
+          loss=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
+          scheduler.step(loss)
           lr=optim.param_groups[0]["lr"]
           f_ceff=init_f+(final_f-init_f)*(lr-start_lr)/(end_lr-start_lr+1e-8)
           prop_ceff[1]=f_ceff
