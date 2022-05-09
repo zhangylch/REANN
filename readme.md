@@ -13,7 +13,6 @@ ___________________________________
 * LibTorch 1.10.0
 * cmake 3.1.0
 * opt_einsum 3.2.0
-
 **References:**
 __________________________________________________
 If you use this package, please cite these works.
