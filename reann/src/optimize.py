@@ -58,7 +58,7 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
              lossprop=lossprop+loss.detach()
 
           # all_reduce the rmse
-          dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
+          dist.all_reduce(lossprop.detach(),op=dist.ReduceOp.SUM)
           loss=torch.sum(torch.mul(lossprop,prop_ceff[0:nprop]))
           scheduler.step(loss)
           lr=optim.param_groups[0]["lr"]
