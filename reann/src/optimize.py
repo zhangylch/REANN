@@ -39,7 +39,6 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           # all_reduce the rmse form the training process 
           # here we dont need to recalculate the training error for saving the computation
           dist.all_reduce(lossprop,op=dist.ReduceOp.SUM)
-          loss=torch.sum(lossprop)
           
           # get the current rank and print the error in rank 0
           if rank==0:
