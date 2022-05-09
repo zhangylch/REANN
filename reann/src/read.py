@@ -169,10 +169,11 @@ local_size = int(os.environ.get("LOCAL_WORLD_SIZE"))
 if local_size==1 and local_rank==0: gpu_sel()
 world_size = int(os.environ.get("WORLD_SIZE"))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu",local_rank)
-if device=="cpu":
-    DDP_backend="gloo"
+DDP_backend="gloo"
+if torch.cuda.is_available():
+    DDP_backend="nccl"
 dist.init_process_group(backend=DDP_backend)
-a=torch.empty(100000,device=device)  # used for apply some memory to prevent two process on the smae gpu
+#a=torch.empty(100000,device=device)  # used for apply some memory to prevent two process on the same gpu
 if batchsize_train<world_size or batchsize_test<world_size:
     raise RuntimeError("The batchsize used for training or test dataset are smaller than the number of processes, please decrease the number of processes.")
 # device the batchsize to each rank
