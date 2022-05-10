@@ -116,7 +116,6 @@ if 'rs' in locals().keys():
 else:
    inta=-(torch.rand(maxnumtype,nwave)+0.2)
    rs=torch.rand(maxnumtype,nwave)*cutoff
-
 if not norbit:
     norbit=int((nwave+1)*nwave/2*(nipsin))
 nl.insert(0,norbit)
