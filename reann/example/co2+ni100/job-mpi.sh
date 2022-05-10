@@ -1,17 +1,17 @@
 #!/bin/sh
 #PBS -V
-#PBS -q gpu
+#PBS -q sugon10
 #PBS -N co2+ni100
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=24
 source /share/home/bjiangch/group-zyl/.bash_profile
 # conda environment
 conda_env=PyTorch-190
-export OMP_NUM_THREADS=16
+export OMP_NUM_THREADS=6
 #path to save the code
 path="/home/home/zyl/pytorch/2021_8_1/eann-8/"
 
 #Number of processes per node to launch
-NPROC_PER_NODE=1
+NPROC_PER_NODE=4
 
 #Number of process in all modes
 WORLD_SIZE=`expr $PBS_NUM_NODES \* $NPROC_PER_NODE`
