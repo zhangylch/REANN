@@ -22,7 +22,7 @@ atomtype = ['Pt','Fe','O']
 device='cpu'
 #-------------------------pbc([1,1,1] is default)---------------------
 period=[1,1,1]
-#---------------nn file('EANN_PES_DOUBLE.pt' is default)----------------------------
+#---------------nn file('REANN_PES_DOUBLE.pt' is default)----------------------------
 nn = 'REANN_PES_DOUBLE.pt'
 #----------------------eann --------------------------------
 atoms.calc = REANN(device=device,atomtype=atomtype,period=period,nn=nn)
