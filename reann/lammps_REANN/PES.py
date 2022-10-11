@@ -94,7 +94,7 @@ class PES(torch.nn.Module):
         #================================================nn module==================================================
      
     def forward(self,cart,atom_index,local_species,neigh_list):
-        atom_index = atom_index.t().contiguous()
+        #atom_index = atom_index.t().contiguous()
         cart.requires_grad_(True)
         density=self.density(cart,atom_index,local_species,neigh_list)
         output = self.nnmod(density,local_species)+self.nnmod.initpot

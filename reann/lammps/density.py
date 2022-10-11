@@ -29,8 +29,8 @@ class GetDensity(torch.nn.Module):
         # in nn with para(l) 
         # will have the form index_para[0,|1,1,1|,2,2,2,2,2,2,2,2,2|...npara[l]..\...]
         self.params=nn.parameter.Parameter(torch.ones_like(self.rs))
-        self.hyper=nn.parameter.Parameter(torch.nn.init.orthogonal_(torch.ones(self.rs.shape[1],norbit)).\
-        unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
+        self.hyper=nn.parameter.Parameter(torch.nn.init.orthogonal_(torch.ones(\
+        self.rs.shape[1],norbit)).unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
         ocmod=OrderedDict()
         for i, m in enumerate(ocmod_list):
             f_oc="memssage_"+str(i)
@@ -92,5 +92,5 @@ class GetDensity(torch.nn.Module):
         sum_worbital=torch.zeros((nlocal,orbital.shape[1],self.rs.shape[1]),dtype=orb_coeff.dtype,device=orb_coeff.device)
         sum_worbital=torch.index_add(sum_worbital,0,atom_index[0],worbital)
         expandpara=self.hyper[0].index_select(0,self.index_para)
-        hyper_worbital=torch.einsum("ijk,jkm -> ijm", sum_worbital,expandpara)
+        hyper_worbital=torch.einsum("ijk,ikm -> ijm", sum_worbital,expandpara)
         return torch.sum(torch.square(hyper_worbital),dim=1)

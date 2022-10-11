@@ -29,8 +29,8 @@ class GetDensity(torch.nn.Module):
         # in nn with para(l) 
         # will have the form index_para[0,|1,1,1|,2,2,2,2,2,2,2,2,2|...npara[l]..\...]
         self.params=nn.parameter.Parameter(torch.ones_like(self.rs))
-        self.hyper=nn.parameter.Parameter(torch.nn.init.orthogonal_(torch.ones(self.rs.shape[1],norbit)).\
-        unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
+        self.hyper=nn.parameter.Parameter(torch.nn.init.orthogonal_(torch.ones(\
+        self.rs.shape[1],norbit)).unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
         ocmod=OrderedDict()
         for i, m in enumerate(ocmod_list):
             f_oc="memssage_"+str(i)
@@ -88,10 +88,11 @@ class GetDensity(torch.nn.Module):
         #dist_vec=dist_vec/distances.view(-1,1)
         orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),self.gaussian(distances,neigh_species))
         orb_coeff=self.params.index_select(0,species)
-        density=self.obtain_orb_coeff(0,numatom,orbital,neigh_list,orb_coeff)
+        density,worbital=self.obtain_orb_coeff(0,numatom,orbital,neigh_list,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff += m(density,species)
-            density = self.obtain_orb_coeff(ioc_loop+1,numatom,orbital,neigh_list,orb_coeff)
+            iter_worbital=orbital+worbital.index_select(0,neigh_list[1])
+            density,worbital= self.obtain_orb_coeff(ioc_loop+1,numatom,iter_worbital,neigh_list,orb_coeff)
         return density
 
     def obtain_orb_coeff(self,iteration:int,numatom:int,orbital,neigh_list,orb_coeff):
@@ -100,6 +101,7 @@ class GetDensity(torch.nn.Module):
         sum_worbital=torch.zeros((numatom,orbital.shape[1],self.rs.shape[1]),dtype=orb_coeff.dtype,device=orb_coeff.device)
         sum_worbital=torch.index_add(sum_worbital,0,neigh_list[0],worbital)
         expandpara=self.hyper[iteration].index_select(0,self.index_para)
-        hyper_worbital=torch.einsum("ijk,jkm ->ijm",sum_worbital,expandpara)
-        return torch.sum(torch.square(hyper_worbital),dim=1)
+        hyper_worbital=torch.einsum("ijk,km ->ijm",sum_worbital,expandpara)
+        density=torch.sum(torch.square(hyper_worbital),dim=1)
+        return density,sum_worbital
 

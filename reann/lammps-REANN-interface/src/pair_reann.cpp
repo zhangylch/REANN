@@ -233,14 +233,15 @@ void PairREANN::compute(int eflag, int vflag)
             {
                 atom_index[totneigh*2]=i;
                 atom_index[totneigh*2+1]=j;
-                neigh_list[totneigh]=atom->map(tag[j]);
+                // map the local index for neighbour to the global index, the convert the global index to the local index of center
+                neigh_list[totneigh]=atom->map(tag[j]);   
                 ++totneigh;
             }
         }
     }
     
     auto cart_=torch::from_blob(cart.data(),{nall,3},option1).to(device_tensor.device(),true).to(tensor_type);
-    auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true);
+    auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true).permute({1,0}).contiguous();
     auto neigh_list_=torch::from_blob(neigh_list.data(),{totneigh},option2).to(device_tensor.device(),true);
     auto local_species_=torch::from_blob(local_species.data(),{inum},option2).to(device_tensor.device(),true);
     auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_list_}).toTuple()->elements();

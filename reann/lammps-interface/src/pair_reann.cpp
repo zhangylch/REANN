@@ -230,7 +230,7 @@ void PairREANN::compute(int eflag, int vflag)
     }
     
     auto cart_=torch::from_blob(cart.data(),{nall,3},option1).to(device_tensor.device(),true).to(tensor_type);
-    auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true);
+    auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true).permute({1,0}).contiguous();
     auto neigh_species_=torch::from_blob(neigh_species.data(),{totneigh},option2).to(device_tensor.device(),true);
     auto local_species_=torch::from_blob(local_species.data(),{inum},option2).to(device_tensor.device(),true);
     auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_species_}).toTuple()->elements();

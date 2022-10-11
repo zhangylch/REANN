@@ -26,8 +26,10 @@ class GetDensity(torch.nn.Module):
 
         self.register_buffer('index_para',index_para)
         self.params=nn.parameter.Parameter(torch.ones_like(self.rs)/float(neigh_atoms))
-        self.hyper=nn.parameter.Parameter(torch.nn.init.xavier_uniform_(torch.rand(self.rs.shape[1],norbit)).\
-        unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
+        #with torch.no_grad():
+        #    self.params[1]=self.params[1]*1e0
+        self.hyper=nn.parameter.Parameter(torch.nn.init.xavier_uniform_(torch.rand(\
+        self.rs.shape[1],norbit)).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
         ocmod=OrderedDict()
         for i, m in enumerate(ocmod_list):
             f_oc="memssage_"+str(i)
@@ -92,13 +94,16 @@ class GetDensity(torch.nn.Module):
         species_ = species.index_select(0,atom_index12[1])
         orbital = oe.contract("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),\
         self.gaussian(distances,species_),backend="torch")
+        # next is design for constructing a unified potential for different systems
         orb_coeff=torch.empty((totnatom,self.rs.shape[1]),dtype=cart.dtype,device=cart.device)
         mask=(species>-0.5).view(-1)
-        orb_coeff.masked_scatter_(mask.view(-1,1),self.params.index_select(0,species[torch.nonzero(mask).view(-1)]))
-        density=self.obtain_orb_coeff(0,totnatom,orbital,atom_index12,orb_coeff).view(totnatom,-1)
+        #orb_coeff.masked_scatter_(mask.view(-1,1),self.params.index_select(0,species[torch.nonzero(mask).view(-1)]))
+        orb_coeff[mask,:]=self.params.index_select(0,species[torch.nonzero(mask).view(-1)])
+        density,worbital=self.obtain_orb_coeff(0,totnatom,orbital,atom_index12,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff = orb_coeff + m(density,species)
-            density = self.obtain_orb_coeff(ioc_loop+1,totnatom,orbital,atom_index12,orb_coeff)
+            iter_worbital=orbital+worbital.index_select(0,atom_index12[1])
+            density,worbital = self.obtain_orb_coeff(ioc_loop+1,totnatom,iter_worbital,atom_index12,orb_coeff)
         return density
  
     def obtain_orb_coeff(self,iteration:int,totnatom:int,orbital,atom_index12,orb_coeff):
@@ -108,4 +113,5 @@ class GetDensity(torch.nn.Module):
         sum_worbital=torch.index_add(sum_worbital,0,atom_index12[0],worbital)
         expandpara=self.hyper[iteration].index_select(0,self.index_para)
         hyper_worbital=oe.contract("ijk,jkm -> ijm",sum_worbital,expandpara,backend="torch")
-        return torch.sum(torch.square(hyper_worbital),dim=1)
+        density=torch.sum(torch.square(hyper_worbital),dim=1)
+        return density,sum_worbital
