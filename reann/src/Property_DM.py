@@ -27,8 +27,9 @@ class Property(torch.nn.Module):
         selected_cart = cart_.index_select(0, atom_index12.view(-1)).view(2, -1, 3)
         shift_values=shifts.view(-1,3).index_select(0,padding_mask)
         dist_vec = selected_cart[0] - selected_cart[1] + shift_values
-        tot_vec = torch.zeros((species.shape[0],3),dtype=cart.dtype,device=cart.device)
-        tot_vec = torch.index_add(tot_vec,0,atom_index12[0],dist_vec)
-        dipole=torch.sum(oe.contract("i,ij -> ij",output,tot_vec,backend="torch").view(cart.shape[0],-1,3),dim=1)
-        return dipole,
+        output_index=output.index_select(0,atom_index12[1])
+        dipole = oe.contract("i,ij -> ij",output_index,dist_vec,backend="torch")
+        tot_dipole = torch.zeros((species.shape[0],3),dtype=cart.dtype,device=cart.device)
+        tot_dipole = torch.index_add(tot_dipole,0,atom_index12[0],dipole)
+        return torch.sum(tot_dipole.view(-1,cart.shape[1],3),dim=1),
 

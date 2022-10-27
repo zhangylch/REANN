@@ -103,7 +103,8 @@ class PES(torch.nn.Module):
         output = self.nnmod(density,species).view(-1)
         selected_cart = cart.index_select(0, neigh_list.view(-1)).view(2, -1, 3)
         dist_vec = selected_cart[0] - selected_cart[1]-shifts
-        tot_vec=torch.zeros((cart.shape[0],3),dtype=cart.dtype,device=cart.device)
-        tot_vec=torch.index_add(tot_vec,0,neigh_list[0],dist_vec)
-        dipole=torch.einsum("i,ij -> j",output.view(-1),tot_vec)
-        return dipole.detach()
+        output_index=output.index_select(0,neigh_list[1])
+        dipole = torch.einsum("i,ij -> ij",output_index,dist_vec)
+        tot_dipole = torch.zeros((cart.shape[0],3),dtype=cart.dtype,device=cart.device)
+        tot_dipole = torch.index_add(tot_dipole,0,neigh_list[0],dipole)
+        return torch.sum(tot_dipole,dim=0).detach()
