@@ -125,7 +125,8 @@ class REANN(Calculator):
         force=pes(period_table,cart,tcell,species,mass)[1]
         energy = float(energy.detach().numpy())
         force = force.detach().numpy()
-        stress = np.dot(cart.detach().numpy().T,force)
+        if self.atoms.cell.rank == 3:
+            stress = np.dot(cart.detach().numpy().T,force)/self.atoms.get_volume()
         self.results['energy'] = energy
         self.results['forces'] = force
         self.results['stress'] = stress
