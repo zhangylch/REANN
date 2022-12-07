@@ -30,7 +30,7 @@ atom2mass={ 'H':1.008,     'He':4.003,   'Li':6.941,    'Be':9.012,   'B':10.811
 
 class REANN(Calculator):
 
-    implemented_properties = ['energy', 'forces']
+    implemented_properties = ['energy', 'forces','stress']
 
     nolabel = True
 
@@ -125,6 +125,8 @@ class REANN(Calculator):
         force=pes(period_table,cart,tcell,species,mass)[1]
         energy = float(energy.detach().numpy())
         force = force.detach().numpy()
+        stress = np.dot(cart.detach().numpy().T,force)
         self.results['energy'] = energy
         self.results['forces'] = force
+        self.results['stress'] = stress
 
