@@ -129,8 +129,7 @@ class REANN(Calculator):
         if self.atoms.cell.rank == 3:
             stresses = np.dot(force.T,cart.detach().numpy())
             stresses = full_3x3_to_voigt_6_stress(stresses)
+            self.results['stress'] = stresses/ self.atoms.get_volume()
+            self.results['stresses'] = stresses/self.atoms.get_volume()
         self.results['energy'] = energy
         self.results['forces'] = force
-        self.results['stress'] = stresses/ self.atoms.get_volume()
-        self.results['stresses'] = stresses/self.atoms.get_volume()
-
