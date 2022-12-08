@@ -31,7 +31,7 @@ atom2mass={ 'H':1.008,     'He':4.003,   'Li':6.941,    'Be':9.012,   'B':10.811
 
 class REANN(Calculator):
 
-    implemented_properties = ['energy', 'forces','stress'，'stresses']
+    implemented_properties = ['energy', 'forces','stress','stresses']
 
     nolabel = True
 
