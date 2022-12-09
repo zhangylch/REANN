@@ -128,7 +128,7 @@ class REANN(Calculator):
         force = force.detach().numpy()
         if self.atoms.cell.rank == 3:
           #---------it is only approximate-----------
-            stresses = np.dot(force.T,cart.detach().numpy())
+            stresses = 1/2*np.dot(force.T,cart.detach().numpy())
             stresses = full_3x3_to_voigt_6_stress(stresses)
             self.results['stress'] = stresses/ self.atoms.get_volume()
             self.results['stresses'] = stresses/self.atoms.get_volume()
