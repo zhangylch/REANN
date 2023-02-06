@@ -97,8 +97,8 @@ class GetDensity(torch.nn.Module):
         density,worbital=self.obtain_orb_coeff(0,totnatom,orbital,atom_index12,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff = orb_coeff + m(density,species)
-            iter_worbital=orbital+worbital.index_select(0,atom_index12[1])*dcut[:,None,None]
-            density,worbital = self.obtain_orb_coeff(ioc_loop+1,totnatom,iter_worbital,atom_index12,orb_coeff)
+            orbital=orbital+worbital.index_select(0,atom_index12[1])*dcut[:,None,None]
+            density,worbital = self.obtain_orb_coeff(ioc_loop+1,totnatom,orbital,atom_index12,orb_coeff)
         return density
  
     def obtain_orb_coeff(self,iteration:int,totnatom:int,orbital,atom_index12,orb_coeff):

@@ -85,14 +85,14 @@ class GetDensity(torch.nn.Module):
         density, worbital=self.obtain_orb_coeff(0,nlocal,orbital,atom_index[0],neigh_list,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff += m(density,local_species)
-            iter_worbital=orbital+worbital.index_select(0,neigh_list)*dcut[:,None,None]
-            density, worbital = self.obtain_orb_coeff(ioc_loop+1,nlocal,iter_worbital,atom_index[0],neigh_list,orb_coeff)
+            orbital = orbital + worbital.index_select(0,neigh_list)*dcut[:,None,None]
+            density, worbital = self.obtain_orb_coeff(ioc_loop+1,nlocal,orbital,atom_index[0],neigh_list,orb_coeff)
         return density
    
     def obtain_orb_coeff(self,iteration:int,numatom:int,orbital,center_list,neigh_list,orb_coeff):
         expandpara=orb_coeff.index_select(0,neigh_list)
         worbital=torch.einsum("ijk,ik ->ijk", orbital,expandpara)
-        sum_worbital=torch.zeros((numatom,orbital.shape[1],self.rs.shape[1]),dtype=orb_coeff.dtype,device=orb_coeff.device)
+        sum_worbital=torch.zeros((numatom,orbital.shape[1],self.rs.shape[1]),dtype=orb_coeff.dtype,device=orb_coeff.device)    
         sum_worbital=torch.index_add(sum_worbital,0,center_list,worbital)
         expandpara=self.hyper[iteration].index_select(0,self.index_para)
         hyper_worbital = torch.einsum("ijk,jkm -> ijm",sum_worbital,expandpara)
