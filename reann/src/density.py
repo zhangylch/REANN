@@ -40,15 +40,9 @@ class GetDensity(torch.nn.Module):
         # Tensor: rs[nwave],inta[nwave] 
         # Tensor: distances[neighbour*numatom*nbatch,1]
         # return: radial[neighbour*numatom*nbatch,nwave]
-        distances=distances.view(-1,1)
-        radial=torch.empty((distances.shape[0],self.rs.shape[1]),dtype=distances.dtype,device=distances.device)
-        for itype in range(self.rs.shape[0]):
-            mask = (species_ == itype)
-            ele_index = torch.nonzero(mask).view(-1)
-            if ele_index.shape[0]>0:
-                part_radial=torch.exp(self.inta[itype:itype+1]*torch.square \
-                (distances.index_select(0,ele_index)-self.rs[itype:itype+1]))
-                radial.masked_scatter_(mask.view(-1,1),part_radial)
+        rs=self.rs.index_select(0,species_)
+        inta=self.inta.index_select(0,species_)
+        radial=torch.exp(inta*torch.square(distances[:,None]-rs))
         return radial
     
     def cutoff_cosine(self,distances):
@@ -92,7 +86,8 @@ class GetDensity(torch.nn.Module):
         distances = torch.linalg.norm(dist_vec,dim=-1)
         #dist_vec=dist_vec/distances.view(-1,1)
         species_ = species.index_select(0,atom_index12[1])
-        orbital = oe.contract("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),\
+        dcut=self.cutoff_cosine(distances)
+        orbital = oe.contract("ji,ik -> ijk",self.angular(dist_vec,dcut),\
         self.gaussian(distances,species_),backend="torch")
         # next is design for constructing a unified potential for different systems
         orb_coeff=torch.empty((totnatom,self.rs.shape[1]),dtype=cart.dtype,device=cart.device)
@@ -102,7 +97,7 @@ class GetDensity(torch.nn.Module):
         density,worbital=self.obtain_orb_coeff(0,totnatom,orbital,atom_index12,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff = orb_coeff + m(density,species)
-            iter_worbital=orbital+worbital.index_select(0,atom_index12[1])
+            iter_worbital=orbital+worbital.index_select(0,atom_index12[1])*dcut[:,None,None]
             density,worbital = self.obtain_orb_coeff(ioc_loop+1,totnatom,iter_worbital,atom_index12,orb_coeff)
         return density
  

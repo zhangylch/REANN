@@ -41,15 +41,9 @@ class GetDensity(torch.nn.Module):
         # Tensor: rs[nwave],inta[nwave] 
         # Tensor: distances[neighbour*numatom*nbatch,1]
         # return: radial[neighbour*numatom*nbatch,nwave]
-        distances=distances.view(-1,1)
-        radial=torch.empty((distances.shape[0],self.rs.shape[1]),dtype=distances.dtype,device=distances.device)
-        for itype in range(self.rs.shape[0]):
-            mask = (species_ == itype)
-            ele_index = torch.nonzero(mask).view(-1)
-            if ele_index.shape[0]>0:
-                part_radial=torch.exp(self.inta[itype:itype+1]*torch.square \
-                (distances.index_select(0,ele_index)-self.rs[itype:itype+1]))
-                radial.masked_scatter_(mask.view(-1,1),part_radial)
+        rs=self.rs.index_select(0,species_)
+        inta=self.inta.index_select(0,species_)
+        radial=torch.exp(inta*torch.square(distances[:,None]-rs))
         return radial
     
     def cutoff_cosine(self,distances):
@@ -86,12 +80,13 @@ class GetDensity(torch.nn.Module):
         dist_vec = selected_cart[0] - selected_cart[1]-shifts
         distances = torch.linalg.norm(dist_vec,dim=-1)
         #dist_vec=dist_vec/distances.view(-1,1)
-        orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),self.gaussian(distances,neigh_species))
+        dcut=self.cutoff_cosine(distances)
+        orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,dcut),self.gaussian(distances,neigh_species))
         orb_coeff=self.params.index_select(0,species)
         density,worbital=self.obtain_orb_coeff(0,numatom,orbital,neigh_list,orb_coeff)
         for ioc_loop, (_, m) in enumerate(self.ocmod.items()):
             orb_coeff += m(density,species)
-            iter_worbital=orbital+worbital.index_select(0,neigh_list[1])
+            iter_worbital=orbital+worbital.index_select(0,neigh_list[1])*dcut[:,None.None]
             density,worbital= self.obtain_orb_coeff(ioc_loop+1,numatom,iter_worbital,neigh_list,orb_coeff)
         return density
 

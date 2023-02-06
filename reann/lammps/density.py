@@ -41,15 +41,9 @@ class GetDensity(torch.nn.Module):
         # Tensor: rs[nwave],inta[nwave] 
         # Tensor: distances[neighbour*numatom*nbatch,1]
         # return: radial[neighbour*numatom*nbatch,nwave]
-        distances=distances.view(-1,1)
-        radial=torch.empty((distances.shape[0],self.rs.shape[1]),dtype=distances.dtype,device=distances.device)
-        for itype in range(self.rs.shape[0]):
-            mask = (species_ == itype)
-            ele_index = torch.nonzero(mask).view(-1)
-            if ele_index.shape[0]>0:
-                part_radial=torch.exp(self.inta[itype:itype+1]*torch.square \
-                (distances.index_select(0,ele_index)-self.rs[itype:itype+1]))
-                radial.masked_scatter_(mask.view(-1,1),part_radial)
+        rs=self.rs.index_select(0,species_)
+        inta=self.inta.index_select(0,species_)
+        radial=torch.exp(inta*torch.square(distances[:,None]-rs))
         return radial
     
     def cutoff_cosine(self,distances):
@@ -85,7 +79,8 @@ class GetDensity(torch.nn.Module):
         dist_vec = selected_cart[0] - selected_cart[1]
         distances = torch.linalg.norm(dist_vec,dim=-1)
         #dist_vec=dist_vec/distances.view(-1,1)
-        orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,self.cutoff_cosine(distances)),\
+        dcut=self.cutoff_cosine(distances)
+        orbital = torch.einsum("ji,ik -> ijk",self.angular(dist_vec,dcut),\
         self.gaussian(distances,neigh_species))
         orb_coeff=self.params.index_select(0,neigh_species)
         worbital=torch.einsum("ijk,ik ->ijk", orbital,orb_coeff)

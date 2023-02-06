@@ -18,6 +18,10 @@ ___________________________________________________________
 *RuntimeError: "Distributed package doesn't have NCCL built in"
 This error is induced by using the "nccl" backend when you run the package on the gpu. More details can be seen in the introduction about the parameters "DDP_backend" in manual. In the version updated on 2022-5-9, this parameters will be forced to "gloo" when the package can not find the gpu irrelative what you have set in the "input_nn".
 
+**Dataset Sampling**
+_________________________________________________________________________________________________
+The REANN package has been embedded in [GDPy](https://github.com/hsulab/GDPy), which is used to search the configuration space and sample suitable configurations to construct machine learning potential functions.
+
 **References:**
 __________________________________________________
 If you use this package, please cite these works.
