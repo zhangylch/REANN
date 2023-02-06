@@ -11,6 +11,7 @@ from ase.units import Bohr
 from ase.neighborlist import NeighborList
 from ase.calculators.calculator import (Calculator, all_changes,
                                         PropertyNotImplementedError)
+from ase.stress import full_3x3_to_voigt_6_stress
 
 atom2mass={ 'H':1.008,     'He':4.003,   'Li':6.941,    'Be':9.012,   'B':10.811,     'C':12.017,     'N':14.007,     'O':15.999,
              'F':18.998,     'Ne':20.180,  'Na':22.990,   'Mg':24.305,  'Al':26.982,   'Si':28.086,   'P':30.974,    'S':32.065,
@@ -30,7 +31,7 @@ atom2mass={ 'H':1.008,     'He':4.003,   'Li':6.941,    'Be':9.012,   'B':10.811
 
 class REANN(Calculator):
 
-    implemented_properties = ['energy', 'forces']
+    implemented_properties = ['energy', 'forces','stress','stresses']
 
     nolabel = True
 
@@ -125,6 +126,11 @@ class REANN(Calculator):
         force=pes(period_table,cart,tcell,species,mass)[1]
         energy = float(energy.detach().numpy())
         force = force.detach().numpy()
+        if self.atoms.cell.rank == 3:
+          #---------it is only approximate-----------
+            stresses = 1/2*np.dot(force.T,cart.detach().numpy())
+            stresses = full_3x3_to_voigt_6_stress(stresses)
+            self.results['stress'] = stresses/ self.atoms.get_volume()
+            self.results['stresses'] = stresses/self.atoms.get_volume()
         self.results['energy'] = energy
         self.results['forces'] = force
-
