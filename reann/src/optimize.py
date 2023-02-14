@@ -15,8 +15,9 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
        Prop_class.train()
        lossprop=torch.zeros(nprop,device=device)        
        for data in data_train:
-          abProp,cart,numatoms,species,atom_index,shifts=data
-          loss=loss_fn(Prop_class(cart,numatoms,species,atom_index,shifts),abProp)
+          data=list(data)
+          abProp=data[0]
+          loss=loss_fn(Prop_class(*data[1:]),abProp)
           lossprop+=loss.detach()
           loss=torch.sum(torch.mul(loss,prop_ceff[0:nprop]))
           # clear the gradients of param
@@ -51,9 +52,9 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           # calculate the test error
           lossprop=torch.zeros(nprop,device=device)
           for data in data_test:
-             abProp,cart,numatoms,species,atom_index,shifts=data
-             loss=loss_fn(Prop_class(cart,numatoms,species,atom_index,shifts,\
-             create_graph=False),abProp)
+             data=list(data)
+             abProp=data[0]
+             loss=loss_fn(Prop_class(*data[1:],create_graph=False),abProp)
              lossprop=lossprop+loss.detach()
 
           # all_reduce the rmse

@@ -106,6 +106,8 @@ elif start_table==3:
    outputneuron=3
 elif start_table==4:
    outputneuron=1
+elif start_table==5:
+   outputneuron=1
 
 #========================use for read rs/inta or generate rs/inta================
 maxnumtype=len(atomtype)
@@ -127,15 +129,15 @@ floder_test=floder+"test/"
 # obtain the number of system
 floderlist=[floder_train,floder_test]
 # read the configurations and physical properties
-if start_table==0 or start_table==1:
-    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,pot,force=  \
-    Read_data(floderlist,1,start_table=start_table)
+if start_table==0 or start_table==1 or start_table==5:
+    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,pot,dos_ene,force=  \
+    Read_data(floderlist,1,start_table)
 elif start_table==2 or start_table==3:
-    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,dip,force=  \
-    Read_data(floderlist,3)
+    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,dip,dos_ene,force=  \
+    Read_data(floderlist,9,start_table)
 else:
-    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,pol,force=  \
-    Read_data(floderlist,9)
+    numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,pol,dos_ene,force=  \
+    Read_data(floderlist,9,start_table)
 
 #============================convert form the list to torch.tensor=========================
 numpoint=np.array(numpoint,dtype=np.int64)
@@ -249,6 +251,18 @@ if start_table==4:
     train_nele=torch.empty(nprop)
     train_nele[0]=numpoint[0]*9
     test_nele[0]=numpoint[1]*9 
+
+if start_table==5: 
+    pot_train=torch.from_numpy(np.array(pot[range_train[0]:range_train[1]],dtype=np_dtype))
+    pot_test=torch.from_numpy(np.array(pot[range_test[0]:range_test[1]],dtype=np_dtype))
+    dos_ene_train=torch.from_numpy(np.array(dos_ene[range_train[0]:range_train[1]],dtype=np_dtype))
+    dos_ene_test=torch.from_numpy(np.array(dos_ene[range_test[0]:range_test[1]],dtype=np_dtype))
+    abpropset_train=(pot_train,)
+    abpropset_test=(pot_test,)
+    test_nele=torch.empty(nprop)
+    train_nele=torch.empty(nprop)
+    train_nele[0]=numpoint[0] 
+    test_nele[0]=numpoint[1] 
 
 # delete the original coordiante
 del coor,mass,numatoms,atom,scalmatrix,period_table

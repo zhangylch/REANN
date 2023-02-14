@@ -7,6 +7,8 @@ ___________________________
 As a calculator, REANN can be used with Atomic Simulation Environment (ASE), you can read the readme in ASE/ folder for interface and the website to know how to use ASE:
 https://wiki.fysik.dtu.dk/ase/
 
+This branch is used to training the density of state. If you want to use this branch, you should set "start_table" in "input_nn" to 5.
+
 **Requirements:**
 ___________________________________
 * PyTorch 1.10.0

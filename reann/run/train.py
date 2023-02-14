@@ -28,6 +28,8 @@ elif start_table==3:
     from src.Property_TDM import *
 elif start_table==4:
     from src.Property_POL import *
+elif start_table==5:
+    from src.Property_DOS import *
 from src.cpu_gpu import *
 from src.Loss import *
 PES_Lammps=None
@@ -43,13 +45,23 @@ elif start_table==3:
     import tdm.script_PES as PES_Normal
 elif start_table==4:
     import pol.script_PES as PES_Normal
+elif start_table==5:
+    import dos.script_PES as PES_Normal
 
 #==============================train data loader===================================
-dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
-species_train,atom_index_train,shifts_train,batchsize_train,min_data_len=min_data_len_train,shuffle=True)
+if start_table==5:
+    dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
+    species_train,atom_index_train,shifts_train,batchsize_train,dos_ene=dos_ene_train,min_data_len=min_data_len_train,shuffle=True)
+else:
+    dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
+    species_train,atom_index_train,shifts_train,batchsize_train,min_data_len=min_data_len_train,shuffle=True)
 #=================================test data loader=================================
-dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
-species_test,atom_index_test,shifts_test,batchsize_test,min_data_len=min_data_len_test,shuffle=False)
+if start_table==5:
+    dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
+    species_test,atom_index_test,shifts_test,batchsize_test,dos_ene=dos_ene_test,min_data_len=min_data_len_test,shuffle=False)
+else:
+    dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
+    species_test,atom_index_test,shifts_test,batchsize_test,min_data_len=min_data_len_test,shuffle=False)
 # dataloader used for load the mini-batch data
 if torch.cuda.is_available(): 
     data_train=CudaDataLoader(dataloader_train,device,queue_size=queue_size)
@@ -73,6 +85,12 @@ if start_table == 4:
     nnmod2=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
     nnmodlist.append(nnmod1)
     nnmodlist.append(nnmod2)
+
+if start_table ==5:
+    nl[0]=nl[0]+1
+    nnmod1=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
+    nnmodlist.append(nnmod1)
+    
 #=========================create the module=========================================
 Prop_class=Property(getdensity,nnmodlist).to(device)  # to device must be included
 

@@ -3,13 +3,14 @@ import numpy as np
 import torch.distributed as dist
 
 class DataLoader():
-    def __init__(self,image,label,numatoms,index_ele,atom_index,shifts,batchsize,min_data_len=None,shuffle=True):
+    def __init__(self,image,label,numatoms,index_ele,atom_index,shifts,batchsize,dos_ene=None,min_data_len=None,shuffle=True):
         self.image=image
         self.label=label
         self.index_ele=index_ele
         self.numatoms=numatoms
         self.atom_index=atom_index
-        self.shifts=shifts
+        self.shifts=shifts     
+        self.dos_ene=dos_ene
         self.batchsize=batchsize
         self.end=self.image.shape[0]
         self.shuffle=shuffle               # to control shuffle the data
@@ -39,7 +40,11 @@ class DataLoader():
             atom_index=self.atom_index[:,index_batch]
             self.ipoint+=self.batchsize
             #print(dist.get_rank(),self.ipoint,self.batchsize)
-            return abprop,coordinates,numatoms,species,atom_index,shifts
+            if self.dos_ene is not None:
+                dos_ene=self.dos_ene.index_select(0,index_batch)
+                return abprop,coordinates,numatoms,species,atom_index,shifts,dos_ene
+            else:
+                return abprop,coordinates,numatoms,species,atom_index,shifts
         else:
             # if shuffle==True: shuffle the data 
             if self.shuffle:
