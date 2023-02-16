@@ -28,7 +28,7 @@
   queue_size=10
   print_epoch=1
   table_norm=True
-  DDP_backend='nccl'
+  DDP_backend='nccl'  # gloo for cpu
   activate = 'Relu_like'
   dtype="float64"
 #===========param for orbital coefficient ===============================================
