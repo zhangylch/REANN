@@ -104,7 +104,7 @@ class PES(torch.nn.Module):
         selected_cart = cart.index_select(0, neigh_list.view(-1)).view(2, -1, 3)
         dist_vec = selected_cart[0] - selected_cart[1]-shifts
         output_index=output.index_select(0,neigh_list[1])
-        dipole = torch.einsum("i,ij -> ij",output_index,dist_vec)
+        dipole = oe.contract("i,ij -> ij",output_index,dist_vec,backend="torch")
         tot_dipole = torch.zeros((cart.shape[0],3),dtype=cart.dtype,device=cart.device)
-        tot_dipole = torch.index_add(tot_dipole,0,neigh_list[0],dipole)
-        return torch.sum(tot_dipole,dim=0).detach()
+        tot_dipole = torch.index_add(tot_dipole,0,neigh_list[0],dipole).view(-1,3)
+        return tot_dipole.detach()

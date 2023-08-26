@@ -1,0 +1,2 @@
+python3 -m numpy.f2py -m getneigh -h getneigh.pyf init_dealloc.f90 get_neigh.f90 inverse_matrix.f90 --overwrite-signature
+python3 -m numpy.f2py --f90flags="-fopenmp" --opt="-O5" -m getneigh -lmkl_rt -c getneigh.pyf init_dealloc.f90 get_neigh.f90 inverse_matrix.f90

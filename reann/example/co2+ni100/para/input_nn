@@ -1,7 +1,7 @@
 # required parameters 
   start_table = 1                # start_table table for the fit with force(1) or without force(0)
                                  # start_table table for DM(2), TDM(3), polarizability(4)
-  table_coor = 1                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
+  table_coor = 0                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
   nl = [64,64]          # neural network architecture   
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1
@@ -19,7 +19,7 @@
   ratio = 0.9                    # ratio for training
 # =====================================================================
   batchsize_train = 128                # batch_size
-  batchsize_test = 256                # batch_size
+  batchsize_val = 256                # batch_size
   e_ceff=0.1
   init_f=50                     # init_f
   final_f=0.5                     # final_f
@@ -39,4 +39,4 @@
      oc_table_norm=True
      oc_loop=3
 #========================floder used to save the data========================
-  floder="/home/home/zyl/pytorch/2021_9_5/data/co2+ni100/"
+  folder="/home/home/zyl/pytorch/2021_9_5/data/co2+ni100/"

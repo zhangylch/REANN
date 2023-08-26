@@ -71,6 +71,6 @@ class NNMod(torch.nn.Module):
           mask = (species == itype)
           ele_index = torch.nonzero(mask).view(-1)
           if ele_index.shape[0] > 0:
-              ele_den = density[ele_index]
+              ele_den = density[ele_index].contiguous()
               output[ele_index] = m(ele_den)
       return output

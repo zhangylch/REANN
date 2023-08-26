@@ -47,16 +47,16 @@ elif start_table==4:
 #==============================train data loader===================================
 dataloader_train=DataLoader(com_coor_train,abpropset_train,numatoms_train,\
 species_train,atom_index_train,shifts_train,batchsize_train,min_data_len=min_data_len_train,shuffle=True)
-#=================================test data loader=================================
-dataloader_test=DataLoader(com_coor_test,abpropset_test,numatoms_test,\
-species_test,atom_index_test,shifts_test,batchsize_test,min_data_len=min_data_len_test,shuffle=False)
+#=================================validation data loader=================================
+dataloader_val=DataLoader(com_coor_val,abpropset_val,numatoms_val,\
+species_val,atom_index_val,shifts_val,batchsize_val,min_data_len=min_data_len_val,shuffle=False)
 # dataloader used for load the mini-batch data
 if torch.cuda.is_available(): 
     data_train=CudaDataLoader(dataloader_train,device,queue_size=queue_size)
-    data_test=CudaDataLoader(dataloader_test,device,queue_size=queue_size)
+    data_val=CudaDataLoader(dataloader_val,device,queue_size=queue_size)
 else:
     data_train=dataloader_train
-    data_test=dataloader_test
+    data_val=dataloader_val
 #==============================oc nn module=================================
 # outputneuron=nwave for each orbital have a different coefficients
 ocmod_list=[]
@@ -74,7 +74,7 @@ if start_table == 4:
     nnmodlist.append(nnmod1)
     nnmodlist.append(nnmod2)
 #=========================create the module=========================================
-Prop_class=Property(getdensity,nnmodlist).to(device)  # to device must be included
+Prop_class=Property(getdensity,nnmodlist).to(device).to(torch_dtype)  # to device must be included
 
 ##  used for syncbn to synchronizate the mean and variabce of bn 
 #Prop_class=torch.nn.SyncBatchNorm.convert_sync_batchnorm(Prop_class).to(device)
@@ -115,8 +115,8 @@ if dist.get_rank()==0:
     for name, m in Prop_class.named_parameters():
         print(name)
 #==========================================================
-Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
-data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=PES_Lammps)
+Optimize(fout,prop_ceff,nprop,train_nele,val_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
+data_train,data_val,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=PES_Lammps)
 if dist.get_rank()==0:
     fout.write(time.strftime("%Y-%m-%d-%H_%M_%S \n", time.localtime()))
     fout.write("terminated normal\n")

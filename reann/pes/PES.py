@@ -85,7 +85,7 @@ class PES(torch.nn.Module):
         #========================nn structure========================
         nl.insert(0,int(norbit))
         oc_nl.insert(0,int(norbit))
-        #================read the periodic boundary condition, element and mass=========
+        #================read the periodic boundary condition, element and masgh_list,shiftss=========
         self.cutoff=cutoff
         ocmod_list=[]
         for ioc_loop in range(oc_loop):
@@ -94,15 +94,12 @@ class PES(torch.nn.Module):
         self.density=GetDensity(rs,inta,cutoff,nipsin,norbit,ocmod_list)
         self.nnmod=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
         #================================================nn module==================================================
-        self.neigh_list=Neigh_List(cutoff,nlinked)
      
-    def forward(self,period_table,cart,cell,species,mass):
-        cart=cart.detach().clone()
-        neigh_list, shifts=self.neigh_list(period_table,cart,cell,mass)
+    def forward(self,cart,neigh_list,shifts,species):
         cart.requires_grad_(True)
         density=self.density(cart,neigh_list,shifts,species)
         output = self.nnmod(density,species)+self.nnmod.initpot
         varene = torch.sum(output)
         grad = torch.autograd.grad([varene,],[cart,])[0]
         if grad is not None:
-            return varene.detach(),-grad.detach()
+            return varene.detach(),-grad.detach().view(-1)

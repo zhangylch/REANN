@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 # read system configuration and energy/force
-def Read_data(floderlist,nprob,start_table=None):
+def Read_data(folderlist,nprob,start_table=None):
     coor=[]
     scalmatrix=[]
     abprop=[] 
@@ -15,10 +15,10 @@ def Read_data(floderlist,nprob,start_table=None):
     #===================variable for force====================
     if start_table==1:
        force=[]
-    numpoint=[0 for _ in range(len(floderlist))]
+    numpoint=[0 for _ in range(len(folderlist))]
     num=0
-    for ifloder,floder in enumerate(floderlist):
-        fname2=floder+'configuration'
+    for ifolder,folder in enumerate(folderlist):
+        fname2=folder+'configuration'
         with open(fname2,'r') as f1:
             while True:
                 string=f1.readline()
@@ -57,7 +57,7 @@ def Read_data(floderlist,nprob,start_table=None):
                         mass[num].append(tmp[0])
                         coor[num].append(tmp[1:4])
                         force[num].append(tmp[4:7])
-                numpoint[ifloder]+=1
+                numpoint[ifolder]+=1
                 numatoms.append(len(atom[num]))
                 num+=1
     return numpoint,atom,mass,numatoms,scalmatrix,period_table,coor,abprop,force

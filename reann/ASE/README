@@ -1,0 +1,13 @@
+-----------------------------------------notice--------------------------------------------------
+reann.py is the codes to interface REANN with ase. If you want to use this interface, you need to copy the reann.py to Path/ase/calculators/ folder. we add the name "reann" and "'reann':'REANN'" to the name and special list located in line 128-137 of calculator.py	
+
+***Very important thing***:
+(1) Read the ase_reann.py to learn how to use this interface.
+
+(2) When you use this interfance for multiprocessing, there is a error about can't pickle module objects.
+Because the interfance loads the nn model as initial, and pytorch can't deepcopy and can't pickle module.
+If you appear these problems, you need to cancel the nn model as initial in reann.py, and write the pes in other place, 
+such as in the calculator, although the speed is slower.
+-------------------------------------------------------------------------------------------------
+ase_eann.py is the example how to use the ase with the eann and reann.
+example is the example if or not operate successfully.

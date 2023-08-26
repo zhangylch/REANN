@@ -30,6 +30,6 @@ class Property(torch.nn.Module):
         output_index=output.index_select(0,atom_index12[1])
         dipole = oe.contract("i,ij -> ij",output_index,dist_vec,backend="torch")
         tot_dipole = torch.zeros((species.shape[0],3),dtype=cart.dtype,device=cart.device)
-        tot_dipole = torch.index_add(tot_dipole,0,atom_index12[0],dipole)
-        return torch.sum(tot_dipole.view(-1,cart.shape[1],3),dim=1),
+        tot_dipole = torch.index_add(tot_dipole,0,atom_index[0],dipole).view(-1,3)
+        return tot_dipole,
 

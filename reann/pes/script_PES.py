@@ -17,6 +17,4 @@ def jit_pes():
     for params in scripted_pes.parameters():
         params.requires_grad=False
     scripted_pes.to(torch.double)
-    scripted_pes.save("REANN_PES_DOUBLE.pt")
-    scripted_pes.to(torch.float32)
-    scripted_pes.save("REANN_PES_FLOAT.pt")
+    scripted_pes.save("PES.pt")

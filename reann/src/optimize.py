@@ -4,8 +4,8 @@ import numpy as np
 import torch.distributed as dist
 
 
-def Optimize(fout,prop_ceff,nprop,train_nele,test_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
-data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=None): 
+def Optimize(fout,prop_ceff,nprop,train_nele,val_nele,init_f,final_f,decay_factor,start_lr,end_lr,print_epoch,Epoch,\
+data_train,data_val,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,device,PES_Lammps=None): 
 
     rank=dist.get_rank()
     best_loss=1e30*torch.ones(1,device=device)    
@@ -30,7 +30,7 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
           #doing the exponential moving average update the EMA parameters
           ema.update()
     
-       #  print the error of vailadation and test each print_epoch
+       #  print the error of vailadation and val each print_epoch
        if np.mod(iepoch,print_epoch)==0:
           # apply the EMA parameters to evaluate
           ema.apply_shadow()
@@ -48,9 +48,9 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
               for error in lossprop:
                   fout.write('{:10.5f} '.format(error))
           
-          # calculate the test error
+          # calculate the val error
           lossprop=torch.zeros(nprop,device=device)
-          for data in data_test:
+          for data in data_val:
              abProp,cart,numatoms,species,atom_index,shifts=data
              loss=loss_fn(Prop_class(cart,numatoms,species,atom_index,shifts,\
              create_graph=False),abProp)
@@ -85,8 +85,8 @@ data_train,data_test,Prop_class,loss_fn,optim,scheduler,ema,restart,PES_Normal,d
               ema.restart()
 
           if rank==0:
-              lossprop=torch.sqrt(lossprop.detach().cpu()/test_nele)
-              fout.write('{} '.format("test error:"))
+              lossprop=torch.sqrt(lossprop.detach().cpu()/val_nele)
+              fout.write('{} '.format("val error:"))
               for error in lossprop:
                  fout.write('{:10.5f} '.format(error))
               # if stop criterion

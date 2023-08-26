@@ -64,48 +64,40 @@ void PairREANN::init_style()
     neighbor->requests[irequest]->pair = 1;
     neighbor->requests[irequest]->half = 0;
     neighbor->requests[irequest]->full = 1;
-    try 
+    //enable the optimize of torch.script
+    torch::jit::GraphOptimizerEnabledGuard guard{true};
+    torch::jit::setGraphExecutorOptimize(true);
+    // load the model 
+    // Deserialize the ScriptModule from a file using torch::jit::load().
+    module = torch::jit::load("LAMMPS.pt");
+    if (datatype=="float32")
     {
-        //enable the optimize of torch.script
-        torch::jit::GraphOptimizerEnabledGuard guard{true};
-        torch::jit::setGraphExecutorOptimize(true);
-        // load the model 
-        // Deserialize the ScriptModule from a file using torch::jit::load().
-        if (datatype=="double") module = torch::jit::load("REANN_LAMMPS_DOUBLE.pt");
-        else 
-        {
-            module = torch::jit::load("REANN_LAMMPS_FLOAT.pt");
-            tensor_type = torch::kFloat32;
-        }
-        // freeze the module
-        int id;
-        if (torch::cuda::is_available()) 
-        {
-            // used for assign the CUDA_VISIBLE_DEVICES= id
-            MPI_Barrier(MPI_COMM_WORLD);
-            // return the GPU id for the process
-            id=select_gpu();
-            torch::DeviceType device_type=torch::kCUDA;
-            auto device=torch::Device(device_type,id);
-            cout << "The simulations are performed on the GPU" << endl;
-            option1=option1.pinned_memory(true);
-            option2=option2.pinned_memory(true);
-            module.to(device);
-            device_tensor=device_tensor.to(device);
-        }
-        /*else 
-        {
-            device_type = torch::kCPU;
-            device=torch::Device(device_type);
-        }*/
-        module.eval();
-        module=torch::jit::optimize_for_inference(module);
+        tensor_type = torch::kFloat32;
     }
-    catch (const c10::Error& e) 
+    int id;
+    if (torch::cuda::is_available()) 
     {
-        std::cerr << "error loading the model\n";
+        // used for assign the CUDA_VISIBLE_DEVICES= id
+        MPI_Barrier(MPI_COMM_WORLD);
+        // return the GPU id for the process
+        id=select_gpu();
+        torch::DeviceType device_type=torch::kCUDA;
+        auto device=torch::Device(device_type,id);
+        cout << "The simulations are performed on the GPU" << endl;
+        option1=option1.pinned_memory(true);
+        option2=option2.pinned_memory(true);
+        module.to(device);
+        device_tensor=device_tensor.to(device);
     }
-    std::cout << "ok\n";
+    else 
+    {
+        //device_type = torch::kCPU;
+        //device=torch::Device(device_type);
+        cout << "The simulations are performed on the CPU" << endl;
+    }
+    module.to(tensor_type);
+    module.eval();
+    module=torch::jit::optimize_for_inference(module);
 
     // create the map from global to local
     if (atom->map_style == Atom::MAP_NONE) {
@@ -265,7 +257,6 @@ void PairREANN::compute(int eflag, int vflag)
             i=ilist[ii];
             eatom[ii] = atom_ene[i];
         }
-
     if (vflag_fdotr) virial_fdotr_compute();
 }
 //#pragma GCC pop_options

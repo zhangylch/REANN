@@ -1,7 +1,7 @@
 # required parameters 
-  start_table = 4                # start_table table for the fit with force(1) or without force(0)
+  start_table = 1                # start_table table for the fit with force(1) or without force(0)
                                  # start_table table for DM(2), TDM(3), polarizability(4)
-  table_coor = 1                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
+  table_coor = 0                 # table_coor   0 for cartesian coordinates and 1 for direct coordinates
   nl = [32,32]          # neural network architecture   
  # nl = [512,512,512,512]          # neural network architecture   
   nblock =  1

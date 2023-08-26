@@ -61,48 +61,41 @@ void PairREANN::init_style()
     neighbor->requests[irequest]->pair = 1;
     neighbor->requests[irequest]->half = 0;
     neighbor->requests[irequest]->full = 1;
-    try 
+    //enable the optimize of torch.script
+    torch::jit::GraphOptimizerEnabledGuard guard{true};
+    torch::jit::setGraphExecutorOptimize(true);
+    // load the model 
+    // Deserialize the ScriptModule from a file using torch::jit::load().
+    module = torch::jit::load("LAMMPS.pt");
+    if (datatype=="float32")
     {
-        //enable the optimize of torch.script
-        torch::jit::GraphOptimizerEnabledGuard guard{true};
-        torch::jit::setGraphExecutorOptimize(true);
-        // load the model 
-        // Deserialize the ScriptModule from a file using torch::jit::load().
-        if (datatype=="double") module = torch::jit::load("REANN_LAMMPS_DOUBLE.pt");
-        else 
-        {
-            module = torch::jit::load("REANN_LAMMPS_FLOAT.pt");
-            tensor_type = torch::kFloat32;
-        }
-        int id;
-        if (torch::cuda::is_available()) 
-        {
-            // used for assign the CUDA_VISIBLE_DEVICES= id
-            MPI_Barrier(MPI_COMM_WORLD);
-            // return the GPU id for the process
-            id=select_gpu();
-            torch::DeviceType device_type=torch::kCUDA;
-            auto device=torch::Device(device_type,id);
-            cout << "The simulations are performed on the GPU" << endl;
-            option1=option1.pinned_memory(true);
-            option2=option2.pinned_memory(true);
-            module.to(device);
-            device_tensor=device_tensor.to(device);
-        }
-        /*else 
-        {
-            device_type = torch::kCPU;
-            device=torch::Device(device_type);
-        }*/
-        module.eval();
-        // freeze the module
-        module=torch::jit::optimize_for_inference(module);
+        tensor_type = torch::kFloat32;
     }
-    catch (const c10::Error& e) 
+    int id;
+    if (torch::cuda::is_available()) 
     {
-        std::cerr << "error loading the model\n";
+        // used for assign the CUDA_VISIBLE_DEVICES= id
+        MPI_Barrier(MPI_COMM_WORLD);
+        // return the GPU id for the process
+        id=select_gpu();
+        torch::DeviceType device_type=torch::kCUDA;
+        auto device=torch::Device(device_type,id);
+        cout << "The simulations are performed on the GPU" << endl;
+        option1=option1.pinned_memory(true);
+        option2=option2.pinned_memory(true);
+        module.to(device);
+        device_tensor=device_tensor.to(device);
     }
-    std::cout << "ok\n";
+    else 
+    {
+        //device_type = torch::kCPU;
+        //device=torch::Device(device_type);
+        cout << "The simulations are performed on the CPU" << endl;
+    }
+    module.to(tensor_type);
+    module.eval();
+    // freeze the module
+    module=torch::jit::optimize_for_inference(module);
   
 }
 
@@ -193,69 +186,71 @@ void PairREANN::compute(int eflag, int vflag)
     double dx,dy,dz,d2;
     double xtmp,ytmp,ztmp;
     unsigned countnum=0;
-    // assign the cart with x
-    for (ii=0; ii<nall; ++ii)
+    if (nlocal>0.5)
     {
-        for (jj=0; jj<3; ++jj)
+        // assign the cart with x
+        for (ii=0; ii<nall; ++ii)
         {
-            cart[countnum]=x[ii][jj];
-            ++countnum;
-        }
-    }
-    
-    for (ii=0; ii<inum; ++ii)
-    {
-        i=ilist[ii];
-        xtmp = x[i][0];
-        ytmp = x[i][1];
-        ztmp = x[i][2];
-        local_species[i]=type[i]-1;
-        jnum=numneigh[i];
-        jlist=firstneigh[i];
-        for (jj=0; jj<jnum; ++jj)
-        {
-            j=jlist[jj];
-            dx = xtmp - x[j][0];
-            dy = ytmp - x[j][1];
-            dz = ztmp - x[j][2];
-            d2 = dx * dx + dy * dy + dz * dz;
-            if (d2<cutoffsq)
+            for (jj=0; jj<3; ++jj)
             {
-                atom_index[totneigh*2]=i;
-                atom_index[totneigh*2+1]=j;
-                neigh_species[totneigh]=type[j]-1;
-                ++totneigh;
+                cart[countnum]=x[ii][jj];
+                ++countnum;
             }
         }
-    }
-    
-    auto cart_=torch::from_blob(cart.data(),{nall,3},option1).to(device_tensor.device(),true).to(tensor_type);
-    auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true);
-    auto neigh_species_=torch::from_blob(neigh_species.data(),{totneigh},option2).to(device_tensor.device(),true);
-    auto local_species_=torch::from_blob(local_species.data(),{inum},option2).to(device_tensor.device(),true);
-    auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_species_}).toTuple()->elements();
-    auto tensor_etot=outputs[0].toTensor().to(torch::kDouble).cpu();
-    auto tensor_force=outputs[1].toTensor().to(torch::kDouble).cpu();
-    auto tensor_atom_ene=outputs[2].toTensor().to(torch::kDouble).cpu();
-    auto etot = tensor_etot.data_ptr<double>();
-    auto force = tensor_force.data_ptr<double>();
-    auto atom_ene = tensor_atom_ene.data_ptr<double>();
-    for (i=0; i<nall; ++i)
-    {
-        for (j=0; j<3; ++j)
-            f[i][j] += *force++; 
-    }
-
-    if (eflag_global)
-        ev_tally(0,0,nlocal,1,etot[0],0.0,0.0,0.0,0.0,0.0);
-
-    if (eflag_atom)
-        for ( ii = 0; ii < nlocal; ++ii)
+        
+        for (ii=0; ii<inum; ++ii)
         {
             i=ilist[ii];
-            eatom[ii] = atom_ene[i];
+            xtmp = x[i][0];
+            ytmp = x[i][1];
+            ztmp = x[i][2];
+            local_species[i]=type[i]-1;
+            jnum=numneigh[i];
+            jlist=firstneigh[i];
+            for (jj=0; jj<jnum; ++jj)
+            {
+                j=jlist[jj];
+                dx = xtmp - x[j][0];
+                dy = ytmp - x[j][1];
+                dz = ztmp - x[j][2];
+                d2 = dx * dx + dy * dy + dz * dz;
+                if (d2<cutoffsq)
+                {
+                    atom_index[totneigh*2]=i;
+                    atom_index[totneigh*2+1]=j;
+                    neigh_species[totneigh]=type[j]-1;
+                    ++totneigh;
+                }
+            }
+        }
+        
+        auto cart_=torch::from_blob(cart.data(),{nall,3},option1).to(device_tensor.device(),true).to(tensor_type);
+        auto atom_index_=torch::from_blob(atom_index.data(),{totneigh,2},option2).to(device_tensor.device(),true);
+        auto neigh_species_=torch::from_blob(neigh_species.data(),{totneigh},option2).to(device_tensor.device(),true);
+        auto local_species_=torch::from_blob(local_species.data(),{inum},option2).to(device_tensor.device(),true);
+        auto outputs = module.forward({cart_,atom_index_,local_species_,neigh_species_}).toTuple()->elements();
+        auto tensor_etot=outputs[0].toTensor().to(torch::kDouble).cpu();
+        auto tensor_force=outputs[1].toTensor().to(torch::kDouble).cpu();
+        auto tensor_atom_ene=outputs[2].toTensor().to(torch::kDouble).cpu();
+        auto etot = tensor_etot.data_ptr<double>();
+        auto force = tensor_force.data_ptr<double>();
+        auto atom_ene = tensor_atom_ene.data_ptr<double>();
+        for (i=0; i<nall; ++i)
+        {
+            for (j=0; j<3; ++j)
+                f[i][j] += *force++; 
         }
 
+        if (eflag_global)
+            ev_tally(0,0,nlocal,1,etot[0],0.0,0.0,0.0,0.0,0.0);
+
+        if (eflag_atom)
+            for ( ii = 0; ii < nlocal; ++ii)
+            {
+                i=ilist[ii];
+                eatom[ii] = atom_ene[i];
+            }
+    }
     if (vflag_fdotr) virial_fdotr_compute();
 }
 //#pragma GCC pop_options

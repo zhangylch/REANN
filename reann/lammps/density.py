@@ -17,20 +17,16 @@ class GetDensity(torch.nn.Module):
         self.rs=nn.parameter.Parameter(rs)
         self.inta=nn.parameter.Parameter(inta)
         self.register_buffer('cutoff', torch.Tensor([cutoff]))
-        self.register_buffer('nipsin', torch.tensor([nipsin]))
+        self.nipsin = nipsin
         npara=[1]
         index_para=torch.tensor([0],dtype=torch.long)
         for i in range(1,nipsin):
-           npara.append(int(3**i))
-           index_para=torch.cat((index_para,torch.ones((npara[i]),dtype=torch.long)*i))
-
+            npara.append(np.power(3,i))
+            index_para=torch.cat((index_para,torch.ones((npara[i]),dtype=torch.long)*i))
         self.register_buffer('index_para',index_para)
-        # index_para: Type: longTensor,index_para was used to expand the dim of params 
-        # in nn with para(l) 
-        # will have the form index_para[0,|1,1,1|,2,2,2,2,2,2,2,2,2|...npara[l]..\...]
         self.params=nn.parameter.Parameter(torch.ones_like(self.rs))
-        self.hyper=nn.parameter.Parameter(torch.nn.init.orthogonal_(torch.ones(self.rs.shape[1],norbit)).\
-        unsqueeze(0).unsqueeze(0).repeat(len(ocmod_list)+1,nipsin,1,1))
+        self.hyper=nn.parameter.Parameter(torch.nn.init.xavier_uniform_(torch.rand(self.rs.shape[1],norbit)).\
+        unsqueeze(0).repeat(nipsin,1,1))
         ocmod=OrderedDict()
         for i, m in enumerate(ocmod_list):
             f_oc="memssage_"+str(i)
@@ -41,15 +37,10 @@ class GetDensity(torch.nn.Module):
         # Tensor: rs[nwave],inta[nwave] 
         # Tensor: distances[neighbour*numatom*nbatch,1]
         # return: radial[neighbour*numatom*nbatch,nwave]
-        distances=distances.view(-1,1)
-        radial=torch.empty((distances.shape[0],self.rs.shape[1]),dtype=distances.dtype,device=distances.device)
-        for itype in range(self.rs.shape[0]):
-            mask = (species_ == itype)
-            ele_index = torch.nonzero(mask).view(-1)
-            if ele_index.shape[0]>0:
-                part_radial=torch.exp(self.inta[itype:itype+1]*torch.square \
-                (distances.index_select(0,ele_index)-self.rs[itype:itype+1]))
-                radial.masked_scatter_(mask.view(-1,1),part_radial)
+        # return: radial[neighbour*numatom*nbatch,nwave]
+        rs=self.rs.index_select(0,species_)
+        inta=self.inta.index_select(0,species_)
+        radial=torch.exp(inta*torch.square(distances[:,None]-rs))
         return radial
     
     def cutoff_cosine(self,distances):
@@ -62,15 +53,10 @@ class GetDensity(torch.nn.Module):
         # return: angular[neighbour*numatom*nbatch,npara[0]+npara[1]+...+npara[ipsin]]
         totneighbour=dist_vec.shape[0]
         dist_vec=dist_vec.permute(1,0).contiguous()
-        orbital=f_cut.view(1,-1)
-        angular=torch.empty(self.index_para.shape[0],totneighbour,dtype=f_cut.dtype,device=f_cut.device)
-        angular[0]=f_cut
-        num=1
-        for ipsin in range(1,int(self.nipsin[0])):
-            orbital=torch.einsum("ji,ki -> jki",orbital,dist_vec).reshape(-1,totneighbour)
-            angular[num:num+orbital.shape[0]]=orbital
-            num+=orbital.shape[0]
-        return angular    
+        angular=[f_cut.view(1,-1)]
+        for ipsin in range(1,int(self.nipsin)):
+            angular.append(torch.einsum("ji,ki -> jki",angular[-1],dist_vec).reshape(-1,totneighbour))
+        return torch.vstack(angular)
 
     def forward(self,cart,atom_index,local_species,neigh_species):
         """
@@ -91,6 +77,6 @@ class GetDensity(torch.nn.Module):
         worbital=torch.einsum("ijk,ik ->ijk", orbital,orb_coeff)
         sum_worbital=torch.zeros((nlocal,orbital.shape[1],self.rs.shape[1]),dtype=orb_coeff.dtype,device=orb_coeff.device)
         sum_worbital=torch.index_add(sum_worbital,0,atom_index[0],worbital)
-        expandpara=self.hyper[0].index_select(0,self.index_para)
+        expandpara=self.hyper.index_select(0,self.index_para.to(torch.long))
         hyper_worbital=torch.einsum("ijk,jkm -> ijm", sum_worbital,expandpara)
         return torch.sum(torch.square(hyper_worbital),dim=1)
