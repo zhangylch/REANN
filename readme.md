@@ -14,6 +14,10 @@ ___________________________________
 * cmake 3.1.0
 * opt_einsum 3.2.0
 
+**Data sample:**
+___________________________________
+The REANN package has been embedded in [GDPy](https://github.com/hsulab/GDPy), which is used to search the configuration space and sample suitable configurations to construct machine learning potential functions.
+
 **References:**
 __________________________________________________
 If you use this package, please cite these works.
