@@ -1,1 +1,1 @@
-2022_2_17 commit: Fixed a bug that could occur when an unequal number of batches of different processes occurred during multi-process training.
+v2.0 commit: Improve the efficiency of reann's interface with ASE and gain similar efficiency to the lammps interface.

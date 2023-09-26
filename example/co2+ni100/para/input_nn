@@ -39,4 +39,4 @@
      oc_table_norm=True
      oc_loop=3
 #========================floder used to save the data========================
-  folder="/home/home/zyl/pytorch/2021_9_5/data/co2+ni100/"
+  folder="../data/co2+ni100/"
