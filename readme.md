@@ -1,16 +1,16 @@
-#Recursively embedded atom neural network 
-##Introduction
-Recursively embedded atom neural network (REANN) is a PyTorch-based end-to-end multi-functional Deep Neural Network Package for Molecular, Reactive and Periodic Systems. Currently, REANN can be used to train interatomic potentials, dipole moments, transition dipole moments, and polarizabilities. Taking advantage of Distributed DataParallel features embedded in PyTorch, the training process is highly parallelized on both GPU and CPU. For the convenience of MD simulation, an interface to LAMMPS has been constructed by creating a new pair_style invoking this representation for highly efficient MD simulations. In addition, REANN have been interfaced to ASE(https://wiki.fysik.dtu.dk/ase/) package as a calculator. More detials can be found on the manua
+# Recursively embedded atom neural network 
+## Introduction
+Recursively embedded atom neural network (REANN) is a PyTorch-based end-to-end multi-functional Deep Neural Network Package for Molecular, Reactive and Periodic Systems. Currently, REANN can be used to train interatomic potentials, dipole moments, transition dipole moments, and polarizabilities. Taking advantage of Distributed DataParallel features embedded in PyTorch, the training process is highly parallelized on both GPU and CPU. For the convenience of MD simulation, an interface to LAMMPS has been constructed by creating a new pair_style invoking this representation for highly efficient MD simulations. In addition, REANN have been interfaced to [ASE](https://wiki.fysik.dtu.dk/ase/) package as a calculator. More detials can be found on the manua
 
 Field-induced REANN ([FIREANN](https://github.com/zhangylch/FIREANN.git)) developed based on the  REANN package and can describes the response of the potential energy to an external field up to an arbitrary order (dipole moments, polarizabilities …) in a unified framework.
   
-##Requirements
+## Requirements
 1. PyTorch 2.0.0
 2. LibTorch 2.0.0
 3. cmake 3.1.0
 4. opt_einsum 3.2.0
 
-##Data sample
+## Data sample
 The REANN package has been embedded in [GDPy](https://github.com/hsulab/GDPy), which is used to search the configuration space and sample suitable configurations to construct machine learning potential functions.
 
 ## Training Workflow
@@ -49,7 +49,7 @@ In the section, we will introduce some hyparameters concerning the embedded dens
 ## MD simulations
 As mentioned earlier, the package interfaces with the LAMMPS framework by creating a new pair_style (fireann).MD simulations can be run in a multi-process or multi-threaded fashion on both GPUs and CPUs. MD simulations based on other MD packages such as i-pi can also be executed through the existing ipi-lammps interface. In addition, MD simulation can also be performed by the ASE interface. More details can be found in the manual.
 
-##References
+## References
 If you use this package, please cite these works.
 1. The original EANN model: Yaolong Zhang, Ce Hu and Bin Jiang *J. Phys. Chem. Lett.* 10, 4962-4967 (2019).
 2. The EANN model for dipole/transition dipole/polarizability: Yaolong Zhang  Sheng Ye, Jinxiao Zhang, Jun Jiang and Bin Jiang *J. Phys. Chem. B*  124, 7284–7290 (2020).
