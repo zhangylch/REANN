@@ -9,5 +9,4 @@ Because the interfance loads the nn model as initial, and pytorch can't deepcopy
 If you appear these problems, you need to cancel the nn model as initial in reann.py, and write the pes in other place, 
 such as in the calculator, although the speed is slower.
 -------------------------------------------------------------------------------------------------
-ase_eann.py is the example how to use the ase with the eann and reann.
-example is the example if or not operate successfully.
+ase_reann.py is the example how to use the ase with the eann and reann.
