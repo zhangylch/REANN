@@ -27,16 +27,20 @@ class REANN(Calculator):
         pes.eval()
         self.cutoff=pes.cutoff
         self.pes=torch.jit.optimize_for_inference(pes)
+        self.table=0
         #self.pes=torch.compile(pes)
     
     def calculate(self,atoms=None, properties=['energy','force'],
                   system_changes=all_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
         cell=np.array(self.atoms.cell)
+        if self.table>0.5 and "cell" in system_changes:
+            self.getneigh.deallocate_all()
         if "cell" in system_changes:
             if cell.ndim==1:
                 cell=np.diag(cell)
             self.getneigh.init_neigh(self.cutoff,self.cutoff/2.0,cell.T)
+            self.table+=1
         icart = self.atoms.get_positions()
         cart,neighlist,shiftimage,scutnum=self.getneigh.get_neigh(icart.T,self.maxneigh)
         cart=torch.from_numpy(cart.T).contiguous().to(self.device).to(self.dtype)
@@ -50,5 +54,3 @@ class REANN(Calculator):
         self.results['energy'] = energy
         force = force.detach().numpy()
         self.results['forces'] = force.copy()
-        if "cell" in system_changes:
-            self.getneigh.deallocate_all()

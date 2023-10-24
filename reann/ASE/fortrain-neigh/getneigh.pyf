@@ -38,7 +38,7 @@ python module getneigh ! in
             integer(kind=4) dimension(2,maxneigh),intent(out),depend(maxneigh) :: atomindex
             real(kind=8) dimension(3,maxneigh),intent(out),depend(maxneigh) :: shifts
             integer(kind=4) intent(in) :: maxneigh
-            integer(kind=4), optional,intent(in),check(shape(cart,1)==numatom),depend(cart) :: numatom=shape(cart,1)
+            integer(kind=4), optional,intent(in),check(shape(cart, 1) == numatom),depend(cart) :: numatom=shape(cart, 1)
             integer(kind=4) intent(out) :: scutnum
         end subroutine get_neigh
         subroutine inverse_matrix(matrix,inv_matrix) ! in :getneigh:inverse_matrix.f90
@@ -49,5 +49,6 @@ python module getneigh ! in
     end interface 
 end python module getneigh
 
-! This file was auto-generated with f2py (version:1.21.6).
-! See http://cens.ioc.ee/projects/f2py2e/
+! This file was auto-generated with f2py (version:1.22.3).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e
