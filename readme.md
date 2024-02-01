@@ -49,6 +49,9 @@ In the section, we will introduce some hyparameters concerning the embedded dens
 ## MD simulations
 As mentioned earlier, the package interfaces with the LAMMPS framework by creating a new pair_style (fireann).MD simulations can be run in a multi-process or multi-threaded fashion on both GPUs and CPUs. MD simulations based on other MD packages such as i-pi can also be executed through the existing ipi-lammps interface. In addition, MD simulation can also be performed by the ASE interface. More details can be found in the manual.
 
+## ASE interface
+In the “ASE” folder, there is a python script "ase_reann.py" used as an example to calculate the energy and atomic forces by invoking the model save in “PES.pt”. Note: The “atomtype” script in the inference should be same with that in the “input_density”. In this interface, we use a cell-linked algorithm to construct the neighbor list by a high efficient Fortran implementation. Thus, the Fortran code should be compiled by f2py, which generates a dynamic link library by running a "run" script, which can be called by python. 
+
 ## References
 If you use this package, please cite these works.
 1. The original EANN model: Yaolong Zhang, Ce Hu and Bin Jiang *J. Phys. Chem. Lett.* 10, 4962-4967 (2019).
