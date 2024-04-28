@@ -18,7 +18,6 @@ python module getneigh ! in
             real(kind=8) dimension(3,3) :: matrix
             real(kind=8) dimension(3,3) :: inv_matrix
             real(kind=8) :: dier
-            real(kind=8), allocatable,dimension(:,:) :: shiftvalue
         end module initmod
         subroutine init_neigh(in_rc,in_dier,cell) ! in :getneigh:init_dealloc.f90
             use constant
@@ -27,9 +26,6 @@ python module getneigh ! in
             real(kind=8) intent(in) :: in_dier
             real(kind=8) dimension(3,3),intent(in) :: cell
         end subroutine init_neigh
-        subroutine deallocate_all ! in :getneigh:init_dealloc.f90
-            use initmod
-        end subroutine deallocate_all
         subroutine get_neigh(cart,coor,atomindex,shifts,maxneigh,numatom,scutnum) ! in :getneigh:get_neigh.f90
             use constant
             use initmod

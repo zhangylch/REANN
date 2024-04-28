@@ -5,7 +5,7 @@ subroutine get_neigh(cart,coor,atomindex,shifts,maxneigh,numatom,scutnum)
      integer(kind=intype),intent(in) :: maxneigh,numatom
      integer(kind=intype),intent(out) :: atomindex(2,maxneigh)
      integer(kind=intype),intent(out) :: scutnum
-     integer(kind=intype) :: num,iatom,ninit,i,j,l,i1,i2,i3
+     integer(kind=intype) :: num,iatom,ninit,i,j,k,l,i1,i2,i3
      integer(kind=intype) :: sca(3),boundary(2,3),rangebox(3)
      integer(kind=intype),allocatable :: index_numrs(:,:,:,:,:)
      integer(kind=intype),allocatable :: index_rs(:,:,:)
@@ -14,7 +14,7 @@ subroutine get_neigh(cart,coor,atomindex,shifts,maxneigh,numatom,scutnum)
      real(kind=typenum),intent(out) :: coor(3,numatom)
      real(kind=typenum) :: tmp
      real(kind=typenum) :: oriminv(3),orimaxv(3),tmp1(3),rangecoor(3)
-     real(kind=typenum) :: fcoor(3,numatom),imageatom(3,numatom,length)
+     real(kind=typenum) :: fcoor(3,numatom),imageatom(3,numatom,length),shiftvalue(3,length)
        coor=cart
        fcoor=matmul(inv_matrix,coor)
 ! move all atoms to an cell which is convenient for the expansion of the image
@@ -22,7 +22,7 @@ subroutine get_neigh(cart,coor,atomindex,shifts,maxneigh,numatom,scutnum)
        orimaxv=coor(:,1)
        do iatom=2,numatom
          ! we comment out these codes to keep the original coor and these require
-         ! that the coordinate are in the same cell.
+         ! that the coordina are in the same cell.
          sca=nint(fcoor(:,iatom)-fcoor(:,1))
          coor(:,iatom)=coor(:,iatom)-sca(1)*matrix(:,1)-sca(2)*matrix(:,2)-sca(3)*matrix(:,3)
          do j=1,3
@@ -40,9 +40,19 @@ subroutine get_neigh(cart,coor,atomindex,shifts,maxneigh,numatom,scutnum)
          coor(:,iatom)=coor(:,iatom)-oriminv
        end do
 ! obtain image 
-       do l=1,length
-         do iatom=1,numatom
-           imageatom(:,iatom,l)=coor(:,iatom)+shiftvalue(:,l)
+       l=0
+       do i=-nimage(3),nimage(3)
+         do j=-nimage(2),nimage(2)
+           do k=-nimage(1),nimage(1)
+             l=l+1
+             shiftvalue(1,l)=k
+             shiftvalue(2,l)=j
+             shiftvalue(3,l)=i
+             tmp1=matmul(matrix,shiftvalue(:,l))
+             do iatom=1,numatom
+               imageatom(:,iatom,l)=coor(:,iatom)+tmp1
+             end do
+           end do
          end do
        end do
        allocate(index_numrs(2,numatom,rangebox(1),rangebox(2),rangebox(3)))

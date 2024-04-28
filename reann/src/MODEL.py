@@ -32,7 +32,7 @@ class ResBlock(nn.Module):
 
 #==================for get the atomic energy=======================================
 class NNMod(torch.nn.Module):
-   def __init__(self,maxnumtype,outputneuron,atomtype,nblock,nl,dropout_p,actfun,initpot=0.0,table_norm=True):
+   def __init__(self,maxnumtype,outputneuron,atomtype,nblock,nl,dropout_p,actfun,initpot=torch.zeros(1),table_norm=True):
       """
       maxnumtype: is the maximal element
       nl: is the neural network structure;
@@ -40,7 +40,6 @@ class NNMod(torch.nn.Module):
       atomtype: elements in all systems
       """
       super(NNMod,self).__init__()
-      self.register_buffer("initpot",torch.Tensor([initpot]))
       # create the structure of the nn     
       self.outputneuron=outputneuron
       elemental_nets=OrderedDict()
@@ -58,7 +57,7 @@ class NNMod(torch.nn.Module):
               modules.append(actfun(nl[nhid-1],nl[nhid]))
               linear=Linear(nl[nhid],self.outputneuron)
               zeros_(linear.weight)
-              if abs(initpot)>1e-6: zeros_(linear.bias)
+              linear.bias[:]=initpot[:]
               modules.append(linear)
               elemental_nets[ele] = Sequential(*modules)
       self.elemental_nets=nn.ModuleDict(elemental_nets)

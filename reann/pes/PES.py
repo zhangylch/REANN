@@ -95,11 +95,11 @@ class PES(torch.nn.Module):
         self.nnmod=NNMod(maxnumtype,outputneuron,atomtype,nblock,list(nl),dropout_p,actfun,table_norm=table_norm)
         #================================================nn module==================================================
      
-    def forward(self,cart,neigh_list,shifts,species):
-        cart.requires_grad_(True)
+    def forward(self,cell,disp_cell,cart,neigh_list,shifts,species):
+        symm_cell=(disp_cell+disp_cell.permute(1,0))/2.0
+        cart=cart+torch.einsum("jk,km ->jm",cart,symm_cell)
+        cell=cell+torch.einsum("jk,km -> jm",cell,symm_cell)
+        shifts=torch.einsum("jk,km ->jm",shifts,cell)
         density=self.density(cart,neigh_list,shifts,species)
-        output = self.nnmod(density,species)+self.nnmod.initpot
-        varene = torch.sum(output)
-        grad = torch.autograd.grad([varene,],[cart,])[0]
-        if grad is not None:
-            return varene.detach(),-grad.detach()
+        energy = self.nnmod(density,species)
+        return torch.sum(energy)

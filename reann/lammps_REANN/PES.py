@@ -97,7 +97,7 @@ class PES(torch.nn.Module):
         atom_index = atom_index.t().contiguous()
         cart.requires_grad_(True)
         density=self.density(cart,atom_index,local_species,neigh_list)
-        output = self.nnmod(density,local_species)+self.nnmod.initpot
+        output = self.nnmod(density,local_species)
         varene = torch.sum(output)
         grad = torch.autograd.grad([varene,],[cart,])[0]
         if grad is not None:

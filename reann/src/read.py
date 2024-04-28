@@ -145,12 +145,6 @@ else:
 #============================convert form the list to torch.tensor=========================
 numpoint=np.array(numpoint,dtype=np.int64)
 numatoms=np.array(numatoms,dtype=np.int64)
-# here the double is used to scal the potential with a high accuracy
-initpot=0.0
-if start_table<=1:
-    pot=np.array(pot,dtype=np.float64).reshape(-1)
-    initpot=np.sum(pot)/np.sum(numatoms)
-    pot=pot-initpot*numatoms
 # get the total number configuration for train/val
 ntotpoint=0
 for ipoint in numpoint:
@@ -175,7 +169,8 @@ for ipoint in range(numpoint[0],ntotpoint):
 local_rank = int(os.environ.get("LOCAL_RANK"))
 local_size = int(os.environ.get("LOCAL_WORLD_SIZE"))
 
-gpu_sel()
+os.system('nvidia-smi -q -d Memory |grep -A4 GPU|grep Used >gpu_info')
+gpu_sel(local_size)
 world_size = int(os.environ.get("WORLD_SIZE"))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu",local_rank)
 DDP_backend="gloo"
@@ -216,8 +211,8 @@ nprop=1
 if start_table==1: 
     pot_train=torch.from_numpy(np.array(pot[range_train[0]:range_train[1]],dtype=np_dtype))
     pot_val=torch.from_numpy(np.array(pot[range_val[0]:range_val[1]],dtype=np_dtype))
-    abpropset_train=(pot_train,force_train)
-    abpropset_val=(pot_val,force_val)
+    abpropset_train=(pot_train.view(-1),force_train)
+    abpropset_val=(pot_val.view(-1),force_val)
     nprop=2
     val_nele=torch.empty(nprop)
     train_nele=torch.empty(nprop)
@@ -229,8 +224,8 @@ if start_table==1:
 if start_table==0: 
     pot_train=torch.from_numpy(np.array(pot[range_train[0]:range_train[1]],dtype=np_dtype))
     pot_val=torch.from_numpy(np.array(pot[range_val[0]:range_val[1]],dtype=np_dtype))
-    abpropset_train=(pot_train,)
-    abpropset_val=(pot_val,)
+    abpropset_train=(pot_train.view(-1),)
+    abpropset_val=(pot_val.view(-1),)
     val_nele=torch.empty(nprop)
     train_nele=torch.empty(nprop)
     train_nele[0]=numpoint[0] 
@@ -256,6 +251,13 @@ if start_table==4:
     train_nele[0]=numpoint[0]*9
     val_nele[0]=numpoint[1]*9 
 
+# do not scal the potential
+initpot=0.0
+if start_table<=1:
+    pot=np.array(pot,dtype=np.float64).reshape(-1)
+    initpot=np.sum(pot)/np.sum(numatoms)
+initpot=torch.tensor([initpot]).to(device).to(torch_dtype)
+   
 # delete the original coordiante
 del coor,mass,numatoms,atom,scalmatrix,period_table
 if start_table==0: del pot
@@ -263,7 +265,7 @@ if start_table==1: del pot,force
 if start_table==2 and start_table==3: del dip
 if start_table==4: del pol
 gc.collect()
-    
+ 
 #======================================================
 # random list of index
 prop_ceff=torch.ones(2,device=device)

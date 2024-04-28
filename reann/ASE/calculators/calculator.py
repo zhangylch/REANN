@@ -131,7 +131,7 @@ names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
          'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
          'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
          'octopus', 'onetep', 'openmx', 'orca', 'psi4', 'qchem', 'siesta',
-         'tip3p', 'tip4p', 'turbomole', 'vasp', 'reann']
+         'tip3p', 'tip4p', 'turbomole', 'vasp', 'reann','fireann','fireann_ef',"Equi_MPNN"]
 
 
 special = {'cp2k': 'CP2K',
@@ -158,6 +158,9 @@ special = {'cp2k': 'CP2K',
            'qchem': 'QChem',
            'tip3p': 'TIP3P',
            'tip4p': 'TIP4P',
+           'fireann': 'FIREANN',
+           'fireann_ef': 'FIREANN_EF',
+           'Equi_MPNN': 'Equi_MPNN',
            'reann': 'REANN'}
 
 

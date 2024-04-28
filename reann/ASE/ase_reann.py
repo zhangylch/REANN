@@ -26,7 +26,7 @@ device='cpu'
 #-------------------------pbc([1,1,1] is default)---------------------
 maxneigh=25000  # maximal number of the neighbor atoms for the configuration (summation of neighbor atoms for each center atom)
 #----------------------------reann (if you use REANN package ****recommend****)---------------------------------
-calc=REANN(atomtype,maxneigh, getneigh, potential = "PES.pt", device=device, dtype = torch.float32)
+calc=REANN(atomtype,maxneigh, getneigh, properties=['energy', 'forces'], nn = "PES.pt", device=device, dtype = torch.float32)
 start=time.time()
 num=0.0
 for atoms in configuration:
@@ -34,8 +34,7 @@ for atoms in configuration:
     atoms.calc=calc
     ene = atoms.get_potential_energy(apply_constraint=False)
     force = atoms.get_forces()
-    print(force.shape)
-    num+=ene
+    print(ene)
 print(num)
 end=time.time()
 print(end-start)
