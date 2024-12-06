@@ -79,7 +79,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
 endif()
 
 # we require C++11 without extensions
-set(CMAKE_CXX_STANDARD 14) #set(CMAKE_CXX_STANDARD 11)   # modify by zyl for c++14 is used for libtorch
+set(CMAKE_CXX_STANDARD 17) #set(CMAKE_CXX_STANDARD 11)   # modify by zyl for c++14 is used for libtorch
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Use compiler extensions")
 
